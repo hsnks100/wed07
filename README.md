@@ -69,7 +69,15 @@ checkout 하게 되면 git clone/new 하게 되어 생성된 wed07 폴더 안에
 [](http://hsnks100.github.com/wed07) 에 들어가셔서 문서를 클릭하면 수정된 내용이 들어가게 됩니다. push 할 때 아이디랑 비번을 요구하는데, 제가 wed07 project page 에서 팀원들 아이디 등록이 
 필요합니다. github 아이디 만드셔서 저(hsnks100@pusan.ac.kr) 에게 알려주세요. 
 
-## 마마.치마.치.며
-마.치.며.
+## 마치며
+
+웹에서 변경 사항을 보려면 branch 를 바꿔야 하는데요.
+웹(github) 에서 프로젝트 기본 페이지는 master 로 되어있습니다. branch 변경 방법은 다음과 같습니다.
+
 ![](img1.png)
+
+위에 보시면 branch 가 기본 master 로 설정되어  있는데 gh-pages 로 바꿔줘야 합니다.
+
+
+
 
