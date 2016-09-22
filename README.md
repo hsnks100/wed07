@@ -69,3 +69,7 @@ checkout 하게 되면 git clone/new 하게 되어 생성된 wed07 폴더 안에
 [](http://hsnks100.github.com/wed07) 에 들어가셔서 문서를 클릭하면 수정된 내용이 들어가게 됩니다. push 할 때 아이디랑 비번을 요구하는데, 제가 wed07 project page 에서 팀원들 아이디 등록이 
 필요합니다. github 아이디 만드셔서 저(hsnks100@pusan.ac.kr) 에게 알려주세요. 
 
+## 마마.치마.치.며
+마.치.며.
+![](img1.png)
+
