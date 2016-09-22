@@ -13,7 +13,9 @@ tags:
 
 DStream 과 Cortex-M3 으로 하는 실험이다. DStream 엔 JTAG 라는 디버거가 있고, 플래시 다운로드가 있어서 Cortex-M3 이라는 cpu 로 전송이 가능하다. 또한 이 JTAG 를 통해서 실시간 디버깅이 가능하다..
 
-DStream 으로 Cortex-M3 에 axf 를 플래시 다운로더
+DStream 으로 Cortex-M3 에 axf 를 플래시 다운로를 통해서 작업할 수 있다. ~~~~~
+
+이런 내용들 추가 하고 
 
 ## 개요
 Eclipse for DS-5 으로 C++ Project 를 만든 뒤, axf 파일을 생성하여 플래시 다운로더로 cpu 로 전송시키면서 포트를 제어하는 실험이다.
@@ -182,6 +184,6 @@ while ( !(((*(volatile unsigned *)0x40011408) & 0x1000) >> 12) ) {
 
 이모저모 그랬고 저랬다...
 
-
+......ㅝㅏㅗㅓㅏㅓㅏㅗㅗㅓㅏㅗㅓㅏㅘ
 
 
