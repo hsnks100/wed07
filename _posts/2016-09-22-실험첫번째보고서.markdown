@@ -11,7 +11,7 @@ tags:
 
 # ARM DS-5 
 
-DStream 과 Cortex-M3 으로 하는 실험이다. DStream 엔 JTAG 라는 디버거가 있고, 플래시 다운로드가 있어서 Cortex-M3 이라는 cpu 로 전송이 가능하다. 또한 이 JTAG 를 통해서 실시간 디버깅이 가능하다..
+DStream 과 Cortex-M3 으로 하는 실험이다. DStream 엔 JTAG 라는 디버거가 있고, 플래시 다운로드가 있어서 Cortex-M3 이라는 cpu 로 전송이 가능하다. 또한 이 JTAG 를 통해서 실시간 디버깅이 가능하다BBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
 DStream 으로 Cortex-M3 에 axf 를 플래시 다운로를 통해서 작업할 수 있다. ~~~~~
 
