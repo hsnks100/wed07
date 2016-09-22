@@ -186,4 +186,4 @@ while ( !(((*(volatile unsigned *)0x40011408) & 0x1000) >> 12) ) {
 
 ......ㅝㅏㅗㅓㅏㅓㅏㅗㅗㅓㅏㅗㅓㅏㅘ
 
-
+![](../images/experiment01/hiring-imagex1.jpg)
