@@ -1,0 +1,82 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely need to edit after that.
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'jekyll serve'. If you change this file, please restart the server process.
+
+# Site settings
+title: 코딩도사의 공간 
+email: hsnks100@gmail.com
+description: > # this means to ignore newlines until "baseurl:"
+    각종 스크립트 언어를 좋아하고, 비 스크립트류에선 C++ 을 좋아합니다.
+    그리고 리눅스 상에서 이것저것 설정파일과 shell script 짜는것을 좋아합니다. 
+    Vim plugin 개발에 관심이 많고 알고리즘 문제 풀이도 즐겨합니다.
+    일반적으로 3-Cushion 이라 불리는 당구게임도 매우 좋아합니다.
+
+    포스팅과 관련된 댓글과 문의는 언제나 환영합니다.
+
+baseurl: "/prob_stats" # the subpath of your site, e.g. /blog
+url: "https://hsnks100.github.io" # the base hostname & protocol for your site
+#github_username:  hsnks100
+disqus_shortname: codingdosa
+
+paginate: 10
+
+# Handling Reading
+safe:         false
+include:      [".htaccess"]
+exclude:      ["newpost", "publish", "start", "stop"]
+keep_files:   [".git", ".svn"]
+encoding:     "utf-8"
+markdown_ext: "markdown,mkdown,mkdn,mkd,md"
+
+# Filtering Content
+show_drafts: null
+limit_posts: 0
+future:      false
+unpublished: false
+
+# Plugins
+whitelist: []
+gems:
+- jekyll-mentions
+- jekyll-redirect-from
+- jekyll-sitemap
+- jekyll-feed
+- jekyll-paginate
+
+# Conversion
+markdown:    kramdown
+lsi:         false
+excerpt_separator: "\n\n"
+
+# Serving
+detach:  false
+port:    4000
+host:   0.0.0.0
+baseurl: "" # does not include hostname
+
+# Outputting
+permalink:     /post/:year-:month-:day-:title.html
+paginate:      100
+paginate_path: "/page:num"
+timezone:      "Asia/Seoul"
+quiet:         true
+defaults:      []
+
+# Markdown Processors
+kramdown:
+  auto_ids:       true
+  footnote_nr:    1
+  entity_output:  as_char
+  toc_levels:     2..3
+  smart_quotes:   lsquo,rsquo,ldquo,rdquo
+  enable_coderay: false
+  syntax_highlighter: rouge
+
+
+highlighter: rouge
+
+#sass:
+    #sass_dir: css

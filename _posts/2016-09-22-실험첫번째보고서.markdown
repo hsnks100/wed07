@@ -1,0 +1,187 @@
+---
+layout: post
+title: "실험첫번째보고서"
+author: 한성희, 이호욱, 한경수
+date: 2016-09-22 02:01 +0900
+tags: 
+---
+* table of contents
+{:toc}
+
+
+# ARM DS-5 
+
+DStream 과 Cortex-M3 으로 하는 실험이다. DStream 엔 JTAG 라는 디버거가 있고, 플래시 다운로드가 있어서 Cortex-M3 이라는 cpu 로 전송이 가능하다. 또한 이 JTAG 를 통해서 실시간 디버깅이 가능하다..
+
+DStream 으로 Cortex-M3 에 axf 를 플래시 다운로더
+
+## 개요
+Eclipse for DS-5 으로 C++ Project 를 만든 뒤, axf 파일을 생성하여 플래시 다운로더로 cpu 로 전송시키면서 포트를 제어하는 실험이다.
+
+## 세팅
+
+이래 저래 케이블을 구성한다. (자세한 설명 필요)
+
+![](../images/experiment01/1.png)
+위와 같은 hardware config 프로그램으로 하드웨어 설정을 잡고, 하드웨어 설정 파일인 rvc 를 원하는 위치에 저장한다.
+>ex) c:\db\db_connect
+![](../images/experiment01/2.png)
+
+이제 Debugger 가 이 설정파일에 관한 디바이스를 import 하기 위해 
+
+```
+cdbimporter.exe -t c:\db c:\db_connect
+```
+
+라는 명령어로 import 한다.
+
+![](../images/experiment01/3.png)
+
+Eclipse for DS-5 를 이용하여 C++ Proejct 를 생성한다. 
+
+(여기서 cpu 잡는거나 RO, RW 잡는과정등이 빠짐)
+
+![](../images/experiment01/4.png)
+프로젝트가 생성된 모습이다.
+
+
+아무것도 하지 않은채 다음 코드를 build 하게 되면 axf 파일이 Debug 하위 폴더에 생성이 된다.
+
+``` cpp
+int main(){
+  return 0;
+}
+```
+
+Debug Configuration 에 들어가서 axf 파일을 지정한 뒤, Debug 를 누르면 플래시 다운로더가 axf 파일을 전송하면서 우리가 만든 프로그램이 ARM 보드 상에서 동작하게 된다.
+![](../images/experiment01/dstream.png)
+
+## 구현
+
+### Bit 다루기
+
+BIT 는 여기서 32bit 변수라고 가정한다.
+
+#### Bit Set
+
+bit set 은 | (OR) 연산을 통해 구현하게 된다. 
+
+``` cpp
+BIT |= (1 << 3) // 4 번째 비트를 set
+BIT |= (1 << (n - 1)) // n 번째 비트를 set
+
+```
+
+#### Bit Unset
+bit unset 은 & 와 ~ 를 통해서 구현하게 되는데 코드는 다음과 같다.
+
+``` cpp
+이런저런 내용
+
+```
+
+#### Bit Check
+
+bit check 방법은 다음과 같다.
+
+``` cpp
+
+```
+
+### Port Enable
+
+```
+(*(volatile unsigned *)0x40021018) |= 0x3c; // A, B, C, D Port Enable
+```
+
+설명
+
+
+![](../images/experiment01/ref1.png) 
+![](../images/experiment01/ref2.png) 
+![](../images/experiment01/ref3.png) 
+
+### LED 에 불켜기
+
+``` cpp 
+const int ALE1= 0x04;
+const int ALE2= 0x08;
+const int ALE3= 0x10;
+const int ALE4= 0x80;
+
+void on1()
+{
+  (*(volatile unsigned *)0x40011400) &= ~0x10011100;
+  (*(volatile unsigned *)0x40011400) |= 0x00000100; // 1
+  (*(volatile unsigned *)0x40011410) = ALE1;
+}
+
+int main(){ 
+  (*(volatile unsigned *)0x40011404) = 0x44444444; //
+  (*(volatile unsigned *)0x40011400) = 0x10011100; // 1
+
+  (*(volatile unsigned *)0x40011008) = 0x00000000;
+  return 0;
+}
+
+```
+
+
+### 조이스틱 탐지
+
+
+``` cpp
+if(~(*(volatile unsigned *)0x40011008) & 0x4)
+  on1();
+else if(~(*(volatile unsigned *)0x40011008) & 0x20)
+  on4();
+else if(~(*(volatile unsigned *)0x40011008) & 0x8)
+  on2();
+else if(~(*(volatile unsigned *)0x40011008) & 0x10)
+  on3();
+```
+
+조이스틱이 눌러졌을 때 처리
+
+``` cpp
+if(~(*(volatile unsigned *)0x40010C08) & 0x100)
+  onAll(); 
+
+void onAll()
+{
+  (*(volatile unsigned *)0x40011400) = 0x10011100; // 1
+  (*(volatile unsigned *)0x40011410) = ALE1 | ALE2 | ALE3 | ALE4;
+}
+
+```
+
+![](../images/experiment01/real1.jpg)
+
+
+### S1, S2 버튼 탐지
+
+
+``` cpp
+while ( !(((*(volatile unsigned *)0x40011408) & 0x0800) >> 11) ) {
+  on1(); delay();
+  on2(); delay();
+  on3(); delay();
+  on4(); delay();
+}
+while ( !(((*(volatile unsigned *)0x40011408) & 0x1000) >> 12) ) {
+  on4(); delay();
+  on3(); delay();
+  on2(); delay();
+  on1(); delay();
+}
+```
+
+
+
+## 결론
+
+이모저모 그랬고 저랬다...
+
+
+
+

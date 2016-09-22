@@ -1,0 +1,30 @@
+#!/bin/bash
+ 
+echo -n "Post Title(a-post-title): "
+read POST_TITLE
+URL_STYLE_TITLE="${POST_TITLE// /-}"
+
+echo -n "Post Tags(tag1 tag2 ...): "
+read POST_TAGS
+
+POST_DATE=`date +'%F'`
+POST_TIME=`date +'%R %z'`
+
+POST_FILE=$POST_DATE-$URL_STYLE_TITLE.markdown
+
+cat > $POST_FILE << _EOF_
+---
+layout: post
+title: "$POST_TITLE"
+author: 코딩도사(hsnks100@gmail.com)
+date: $POST_DATE $POST_TIME
+tags: $POST_TAGS
+comments: true
+---
+* table of contents
+{:toc}
+
+
+_EOF_
+
+vim $POST_FILE
