@@ -66,7 +66,7 @@ checkout 하게 되면 git clone/new 하게 되어 생성된 wed07 폴더 안에
 ```
 
 와 같은 폴더 구조를 볼 수 있습니다. 여기서 _posts 에 있는 markdown 파일을 수정하여 commit 하고 push 하면 
-[](http://hsnks100.github.com/wed07) 에 들어가셔서 문서를 클릭하면 수정된 내용이 들어가게 됩니다. push 할 때 아이디랑 비번을 요구하는데, 제가 wed07 project page 에서 팀원들 아이디 등록이 
+[여기](http://hsnks100.github.com/wed07) 에 들어가셔서 문서를 클릭하면 수정된 내용이 들어가게 됩니다. push 할 때 아이디랑 비번을 요구하는데, 제가 wed07 project page 에서 팀원들 아이디 등록이 
 필요합니다. github 아이디 만드셔서 저(hsnks100@pusan.ac.kr) 에게 알려주세요. 
 
 ## 마치며
@@ -78,6 +78,6 @@ checkout 하게 되면 git clone/new 하게 되어 생성된 wed07 폴더 안에
 
 위에 보시면 branch 가 기본 master 로 설정되어  있는데 gh-pages 로 바꿔줘야 합니다.
 
-그리고 sourcetree 내에서 계정정보 설정법은 [](http://gulog.tistory.com/359) 참고 하시면 됩니다.
+그리고 sourcetree 내에서 계정정보 설정법은 [여기를](http://gulog.tistory.com/359) 참고 하시면 됩니다.
 
 
