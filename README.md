@@ -44,8 +44,8 @@ github 자체에서 문서화 기능을 지원하는데 그 예약된 branch 가
 checkout 하게 되면 git clone/new 하게 되어 생성된 wed07 폴더 안에 
 
 
-
->▸ _includes/
+```
+▸ _includes/
 ▸ _layouts/
 ▸ _plugins/
 ▸ _posts/
@@ -63,6 +63,7 @@ checkout 하게 되면 git clone/new 하게 되어 생성된 wed07 폴더 안에
   README.md
   test.html
   test.md
+```
 
 와 같은 폴더 구조를 볼 수 있습니다. 여기서 _posts 에 있는 markdown 파일을 수정하여 commit 하고 push 하면 
 [](http://hsnks100.github.com/wed07) 에 들어가셔서 문서를 클릭하면 수정된 내용이 들어가게 됩니다. push 할 때 아이디랑 비번을 요구하는데, 제가 wed07 project page 에서 팀원들 아이디 등록이 
