@@ -78,6 +78,6 @@ checkout 하게 되면 git clone/new 하게 되어 생성된 wed07 폴더 안에
 
 위에 보시면 branch 가 기본 master 로 설정되어  있는데 gh-pages 로 바꿔줘야 합니다.
 
-
+그리고 sourcetree 내에서 계정정보 설정법은 [](http://gulog.tistory.com/359) 참고 하시면 됩니다.
 
 
