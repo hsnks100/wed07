@@ -11,9 +11,9 @@ tags:
 
 # ARM DS-5 
 
-DStream 과 Cortex-M3 으로 하는 실험이다. DStream 엔 JTAG 라는 디버거가 있고, 플래시 다운로드가 있어서 Cortex-M3 이라는 cpu 로 전송이 가능하다. 또한 이 JTAG 를 통해서 실시간 디버깅이 가능하다BBBBBBBBBBBBBBBBBBBBBBBBBBBB
+DStream 과 Cortex-M3 으로 하는 실험이다. DStream 엔 JTAG 라는 디버거가 있고, 플래시 다운로드가 있어서 Cortex-M3 이라는 cpu 로 전송이 가능하다. 또한 이 JTAG 를 통해서 실시간 디버깅이 가능하다.
 
-DStream 으로 Cortex-M3 에 axf 를 플래시 다운로를 통해서 작업할 수 있다. ~~~~~
+DStream 으로 Cortex-M3 에 axf 를 플래시 다운로를 통해서 작업할 수 있다. 
 
 이런 내용들 추가 하고 
 
@@ -22,7 +22,8 @@ Eclipse for DS-5 으로 C++ Project 를 만든 뒤, axf 파일을 생성하여 �
 
 ## 세팅
 
-이래 저래 케이블을 구성한다. (자세한 설명 필요)
+Debug Hardware Config를 이용하여  host PC에 연결된 Dstream 목록 중에 해당 Dstream 항복을 선택한 뒤, Connect한다. 
+Auto Configure버튼을 눌르면 Dstream 장비가 JTAG를 통해 프로세서 내부 Debug Logic의 각 컴포넌트에 대한 체인 정보를 읽어온다.  
 
 ![](../images/experiment01/1.png)
 위와 같은 hardware config 프로그램으로 하드웨어 설정을 잡고, 하드웨어 설정 파일인 rvc 를 원하는 위치에 저장한다.
@@ -42,6 +43,18 @@ cdbimporter.exe -t c:\db c:\db_connect
 Eclipse for DS-5 를 이용하여 C++ Proejct 를 생성한다. 
 
 (여기서 cpu 잡는거나 RO, RW 잡는과정등이 빠짐)
+![](../images/experiment01/RO_RW.jpg)
+
+RO base address(--ro_base)와 RW base address(--rw_base)에 각각
+SRAM (aliased by bit-banding)의 메모리 범위 중 .....
+
+![] (../images/experiment01/target_cpu.jpg)
+
+Target CPU(--cpu) 자리에 우리가 STM32 보드에서 사용할 CPU이름 CORTEX-M3를 입력.
+
+![] (../images/experiment01/image_entry_point.jpg)
+
+여기에도 Image entry point(--entry)와 Target CPU(--cpu)에도 값을 넣어준다. 
 
 ![](../images/experiment01/4.png)
 프로젝트가 생성된 모습이다.
@@ -183,7 +196,3 @@ while ( !(((*(volatile unsigned *)0x40011408) & 0x1000) >> 12) ) {
 ## 결론
 
 이모저모 그랬고 저랬다...
-
-......ㅝㅏㅗㅓㅏㅓㅏㅗㅗㅓㅏㅗㅓㅏㅘ
-
-![](../images/experiment01/hiring-imagex1.jpg)
