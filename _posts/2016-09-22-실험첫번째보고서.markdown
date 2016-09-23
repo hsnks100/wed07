@@ -45,8 +45,9 @@ Eclipse for DS-5 를 이용하여 C++ Proejct 를 생성한다.
 (여기서 cpu 잡는거나 RO, RW 잡는과정등이 빠짐)
 ![](../images/experiment01/RO_RW.png)
 
-RO base address(--ro_base)와 RW base address(--rw_base)에 각각
-SRAM (aliased by bit-banding)의 메모리 범위 중 .....
+RO base address(--ro_base)와 RW base address(--rw_base)에 각각 SRAM (aliased by bit-banding)의 메모리 주소 입력한다.
+RO base address(--ro_base) = 0x2000 0000
+RW base address(--rw_base) = 0x2000 0000~Ox2000 FFFF 중 임의의 주소
 
 ![](../images/experiment01/target_cpu.png)	
 
