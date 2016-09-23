@@ -43,16 +43,16 @@ cdbimporter.exe -t c:\db c:\db_connect
 Eclipse for DS-5 를 이용하여 C++ Proejct 를 생성한다. 
 
 (여기서 cpu 잡는거나 RO, RW 잡는과정등이 빠짐)
-![](../images/experiment01/RO_RW.png)
+![](../images/experiment01/RO_RW.jpg)
 
 RO base address(--ro_base)와 RW base address(--rw_base)에 각각
 SRAM (aliased by bit-banding)의 메모리 범위 중 .....
 
-![] (../images/experiment01/target_cpu.png)
+![] (../images/experiment01/target_cpu.jpg)
 
 Target CPU(--cpu) 자리에 우리가 STM32 보드에서 사용할 CPU이름 CORTEX-M3를 입력.
 
-![] (../images/experiment01/image_entry_point.png)
+![] (../images/experiment01/image_entry_point.jpg)
 
 여기에도 Image entry point(--entry)와 Target CPU(--cpu)에도 값을 넣어준다. 
 
