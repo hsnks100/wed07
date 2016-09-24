@@ -141,6 +141,12 @@ RCC_APB2ENR 에서 PORT 들을 enable 시켜줘야 사용이 가능한데,  위�
 ![](../images/experiment01/ref2.png) 
 ![](../images/experiment01/ref3.png) 
 
+### GPIO memory map
+![](../images/experiment01/memory_map.png)
+
+앞으로 두고두고 보게될 memory map
+
+
 ### LED 에 불켜기
 
 LED 는 기본적으로 PortD 를 건들임으로써 켤 수 있다.
