@@ -42,21 +42,24 @@ cdbimporter.exe -t c:\db c:\db_connect
 
 Eclipse for DS-5 를 이용하여 C++ Proejct 를 생성한다. 
 
-(여기서 cpu 잡는거나 RO, RW 잡는과정등이 빠짐)
 ![](../images/experiment01/RO_RW.png)
 
 RO base address(--ro_base)와 RW base address(--rw_base)에 각각 SRAM (aliased by bit-banding)의 메모리 주소 입력한다.
 
-RO base address(--ro_base) = 0x2000 0000
+RO base address(--ro_base) = 0x2000 0000..
 RW base address(--rw_base) = 0x2000 0000~Ox2000 FFFF 중 임의의 주소
 
 ![](../images/experiment01/target_cpu.png)	
 
-Target CPU(--cpu) 자리에 우리가 STM32 보드에서 사용할 CPU이름 CORTEX-M3를 입력.
+Target CPU(--cpu) 자리에 우리가 STM32 보드에서 사용할 CPU이름 Cortex-M3를 입력.
 
 ![](../images/experiment01/image_entry_point.png)
 
-여기에도 Image entry point(--entry)와 Target CPU(--cpu)에도 값을 넣어준다. 
+여기에도..
+Image entry point(--entry) = main..
+Target CPU(--cpu) = Cortex-M3 
+
+값을 넣어준다.
 
 ![](../images/experiment01/4.png)
 프로젝트가 생성된 모습이다.
@@ -77,15 +80,18 @@ Debug Configuration 에 들어가서 axf 파일을 지정한 뒤, Debug 를 누�
 
 ### Bit 다루기
 
-BIT 는 여기서 32bit 변수라고 가정한다.
+BIT 는 여기서 32bit 변수라고 가정한다. 그리고 bit 는 0 부터 시작한다고 생각한다.
 
 #### Bit Set
 
 bit set 은 | (OR) 연산을 통해 구현하게 된다. 
 
 ``` cpp
-BIT |= (1 << 3) // 4 번째 비트를 set
-BIT |= (1 << (n - 1)) // n 번째 비트를 set
+BIT |= (1 << 3) // 3 번째 비트를 set
+BIT |= (1 << n) // n 번째 비트를 set
+
+// macro
+#define set_bit(data, loc)      ((data) |= (0x1 << (loc)))
 
 ```
 
@@ -95,6 +101,11 @@ bit unset 은 & 와 ~ 를 통해서 구현하게 되는데 코드는 다음과 �
 ``` cpp
 이런저런 내용
 
+BIT &= ~(1 << 3) // 3번째 비트를 unset
+
+/* 한 비트 클리어 */
+#define clear_bit(data, loc)    ((data) &= ~(0x1 << (loc)))
+
 ```
 
 #### Bit Check
@@ -102,16 +113,28 @@ bit unset 은 & 와 ~ 를 통해서 구현하게 되는데 코드는 다음과 �
 bit check 방법은 다음과 같다.
 
 ``` cpp
+if(data & (1 << 3)) // 3번째 bit 가 1인지 검사
+
+/* 비트 검사 */
+#define check_bit(data, loc)    ((data) & (0x1 << (loc)))
 
 ```
 
 ### Port Enable
 
+
+
 ```
-(*(volatile unsigned *)0x40021018) |= 0x3c; // A, B, C, D Port Enable
+#define RCC_BASE	 	0x40021000
+#define RCC_APB2ENR	REGISTER_32(RCC_BASE + 0x18 )
+(*(volatile unsigned *)0x40021018) |= 0x3c; // A, B, C, D Port Enable 
 ```
 
-설명
+![](../images/experiment01/porte.png)
+RCC_APB2ENR 에서 PORT 들을 enable 시켜줘야 사용이 가능한데,  위에서 표를 보면 PORTAEN, PORTBEN, PORTCEN, PORTDEN 가 보인다.
+
+해당 비트를 2진수로 표현하면 0b0011 1100 인데 16진수로 표현하면 0x3C 가 된다.
+그래서 0x40021018 주소에 0x3c 를 넣어주면 enable 이 된다.
 
 
 ![](../images/experiment01/ref1.png) 
@@ -119,6 +142,24 @@ bit check 방법은 다음과 같다.
 ![](../images/experiment01/ref3.png) 
 
 ### LED 에 불켜기
+
+LED 는 기본적으로 PortD 를 건들임으로써 켤 수 있다.
+
+GPIOD_BSRR, GPIOD_CRL 두개의 레지스터에 값을 넣으면서 구현가능하다..
+
+``` 
+LED1 : BS2
+LED2 : BS3
+LED3 : BS4
+LED4 : BS7
+
+0b10000000 : LED4
+0b00010000 : LED3
+0b00001000 : LED2
+0b00000100 : LED1 
+```
+
+실제 코드로 구현하면 다음과 같다. 
 
 ``` cpp 
 const int ALE1= 0x04;
@@ -128,15 +169,14 @@ const int ALE4= 0x80;
 
 void on1()
 {
-  (*(volatile unsigned *)0x40011400) &= ~0x10011100;
+  (*(volatile unsigned *)0x40011400) &= ~0x10011100; // all unset
   (*(volatile unsigned *)0x40011400) |= 0x00000100; // 1
   (*(volatile unsigned *)0x40011410) = ALE1;
 }
 
 int main(){ 
-  (*(volatile unsigned *)0x40011404) = 0x44444444; //
-  (*(volatile unsigned *)0x40011400) = 0x10011100; // 1
-
+  (*(volatile unsigned *)0x40011404) = 0x44444444; // reset
+  (*(volatile unsigned *)0x40011400) = 0x10011100; // 1 
   (*(volatile unsigned *)0x40011008) = 0x00000000;
   return 0;
 }
@@ -146,6 +186,7 @@ int main(){
 
 ### 조이스틱 탐지
 
+조이스틱은 portx 를 이용해서 탐지가 가능하다.
 
 ``` cpp
 if(~(*(volatile unsigned *)0x40011008) & 0x4)
@@ -178,6 +219,8 @@ void onAll()
 ### S1, S2 버튼 탐지
 
 
+버튼은 portx 를 이용해서 탐지가 가능하다.
+
 ``` cpp
 while ( !(((*(volatile unsigned *)0x40011408) & 0x0800) >> 11) ) {
   on1(); delay();
@@ -197,4 +240,4 @@ while ( !(((*(volatile unsigned *)0x40011408) & 0x1000) >> 12) ) {
 
 ## 결론
 
-이모저모 그랬고 저랬다...
+
