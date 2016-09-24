@@ -78,6 +78,33 @@ Debug Configuration 에 들어가서 axf 파일을 지정한 뒤, Debug 를 누�
 
 ## 구현
 
+### GPIO memory map
+![](../images/experiment01/memory_map.png)
+
+앞으로 두고두고 보게될 memory map..
+각 register 별로 memory address 가 나타나 있다.
+
+### GPIO Register 에 대해
+![](../images/experiment01/registers.png)
+
+그림을 보면 GPIO x Register 에 대해 나타나 있는데, 각 CRL 부터 LCKR 까지 GPIO_BASE 주소로 부터 offset 을 가진다..
+
+offset
+
+```
+CRL = 0x00
+CRH = 0x04
+IDR = 0x08
+ODR = 0x0C
+BSRR = 0x10
+BRR = 0x14
+LCKR = 0x18
+```
+
+앞으로 이 GPIO 의 원하는 목적에 따라 해당 register 를 set/unset 하면서 과제를 수행할 것이다..
+이 register 변수를 제어하기 위해서 간단한 비트연산의 지식이 필요하다.
+
+
 ### Bit 다루기
 
 BIT 는 여기서 32bit 변수라고 가정한다. 그리고 bit 는 0 부터 시작한다고 생각한다.
@@ -99,8 +126,6 @@ BIT |= (1 << n) // n 번째 비트를 set
 bit unset 은 & 와 ~ 를 통해서 구현하게 되는데 코드는 다음과 같다.
 
 ``` cpp
-이런저런 내용
-
 BIT &= ~(1 << 3) // 3번째 비트를 unset
 
 /* 한 비트 클리어 */
@@ -141,10 +166,6 @@ RCC_APB2ENR 에서 PORT 들을 enable 시켜줘야 사용이 가능한데,  위�
 ![](../images/experiment01/ref2.png) 
 ![](../images/experiment01/ref3.png) 
 
-### GPIO memory map
-![](../images/experiment01/memory_map.png)
-
-앞으로 두고두고 보게될 memory map
 
 
 ### LED 에 불켜기
@@ -192,7 +213,22 @@ int main(){
 
 ### 조이스틱 탐지
 
-조이스틱은 portx 를 이용해서 탐지가 가능하다.
+조이스틱은 PortC 를 이용해서 탐지가 가능하다..
+GPIOC_IDR : input data register 를 이용해서 탐지한다.
+
+GPIOC_IDR 의 주소는 0x40011008..
+조이스틱을 상하좌우로 컨트롤 하면 bit 가 다음과 같이 바뀌게 된다.
+
+```
+0b00x0 0000
+0b000x 0000
+0b0000 x000
+0b0000 0x00
+```
+
+조이스틱 입력이 들어오면 x 가 0으로 바뀐다..  
+어떻게 바뀌는지 알았으니, 코드로 구현하면 다음과 같다.
+
 
 ``` cpp
 if(~(*(volatile unsigned *)0x40011008) & 0x4)
@@ -205,7 +241,11 @@ else if(~(*(volatile unsigned *)0x40011008) & 0x10)
   on3();
 ```
 
+
 조이스틱이 눌러졌을 때 처리
+
+조이스틱이 눌러졌을 땐 PORTC_IDR 값의 0b000x 0000 0000..
+x부분의 값이 0으로 바뀌는데 마찬가지로 코드로 구현하면 다음과 같다.
 
 ``` cpp
 if(~(*(volatile unsigned *)0x40010C08) & 0x100)
@@ -225,7 +265,27 @@ void onAll()
 ### S1, S2 버튼 탐지
 
 
-버튼은 portx 를 이용해서 탐지가 가능하다.
+```
+CRL = 0x00
+CRH = 0x04
+IDR = 0x08
+ODR = 0x0C
+BSRR = 0x10
+BRR = 0x14
+LCKR = 0x18
+```
+
+버튼은 portd 를 이용해서 탐지가 가능하다. 좀더 자세히 쓰면 PORTD_IDR 을 통해서 탐지가 가능하다. 좀 전 LED 를 제어할 때도 PORTD 를 썼는데, 입력을 받을 때도 같은 PORT 를 쓰는게 가능하다. 
+출력할 땐 PORTD_CNF, PORTD_BSRR 을 썼고, 입력을 받을 땐 PORTD_IDR 을 쓴다.
+
+```
+S1 가 눌러졌을 땐 
+0b0000 x000 0000 0000
+S2 가 눌러졌을 땐 
+0b000x 0000 0000 0000
+```
+위의 x 인 부분이 해당 버튼이 눌러졌을 때 0으로 바뀐다. 이를 탐지하는 코드를 쓰면 다음과 같다.
+
 
 ``` cpp
 while ( !(((*(volatile unsigned *)0x40011408) & 0x0800) >> 11) ) {
@@ -245,5 +305,12 @@ while ( !(((*(volatile unsigned *)0x40011408) & 0x1000) >> 12) ) {
 
 
 ## 결론
+
+처음 다루는 ARM 보드라서 많이 헷갈렸고 어려웠다. 선발대의 발표에서 조금 정보가 덜 주어지는 발표를 듣게 됐는데 처음엔 조원 모두가 불만이었으나, 문제를 해결하면서 우리가 다루는 플랫폼에 대해서 점점 익숙해져가는 우리 모습을 보았다.
+만약 모든 정보가 쌩으로 주어지고 거기에 맞춰서 그냥 따라하기만 했다면 해당 정보들이 머리속에 들어가있지 않았을것 같다. 고생한만큼 큰 공부가 되었고, 앞으로 수행할 과제에 대해 스스로 해결하는 힘을 길렀다고 생각한다.
+
+또한 처음이라서 memory 주소를 쌩으로 쓰면서 과제를 했는데, 다음부터는 미리 define 된 bit macro  와 stm32f macro 를 적극 활용해서 readability 를 높이는 방향으로 코딩을 할 것이다. 
+
+
 
 
