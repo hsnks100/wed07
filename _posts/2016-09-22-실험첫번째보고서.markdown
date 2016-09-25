@@ -1,3 +1,6 @@
+---
+layout: post
+---
 * table of contents
 {:toc} 
 
