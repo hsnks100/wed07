@@ -64,6 +64,7 @@ paginate_path: "/page:num"
 timezone:      "Asia/Seoul"
 quiet:         true
 defaults:      []
+cover: true
 
 # Markdown Processors
 kramdown:
