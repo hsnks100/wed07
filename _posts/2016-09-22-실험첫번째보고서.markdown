@@ -14,8 +14,6 @@ DStream 과 Cortex-M3 으로 하는 실험이다. DStream 엔 JTAG 라는 디버
 
 DStream 으로 Cortex-M3 에 axf 를 플래시 다운로더를 통해서 작업할 수 있다. 
 
-이런 내용들 추가 하고 
-
 ## 개요
 Eclipse for DS-5 로 보드의 레지스터 값을 조작하는 프로그램을 플래시 다운로더로 보드의 cpu 로 전송시켜 LED를 제어한다.
 ## 세팅
