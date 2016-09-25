@@ -13,7 +13,6 @@ layout: default
       {% for post in paginator.posts %}
         {% if post.publish != false %}
         <li class="post-item">
-          {% if post.author %}
 
           <div class="post-author-info">
             {% if post.author-email %}
@@ -32,7 +31,6 @@ layout: default
               <span class="author-name">{{post.author}}</span>  
             {% endif %}
           </div>
-        {% endif %}
 
 
         </li>
