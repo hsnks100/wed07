@@ -184,7 +184,7 @@ LED4 : BS7
 
 실제 코드로 구현하면 다음과 같다. 
 
-``` cpp 
+``` cpp
 const int ALE1= 0x04;
 const int ALE2= 0x08;
 const int ALE3= 0x10;
