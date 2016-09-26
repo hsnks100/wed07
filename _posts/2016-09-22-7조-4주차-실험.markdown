@@ -79,6 +79,7 @@ Debug Configuration 에 들어가서 axf 파일을 지정한 뒤, Debug 를 누�
 # 구현
 
 ## GPIO memory map
+
 ![](../images/experiment01/memory_map2.png)
 
 memory mapping에 사용될 memory map.
