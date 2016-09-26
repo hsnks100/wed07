@@ -91,9 +91,9 @@ memory mapping에 사용될 memory map.
 
 그림을 보면 GPIO x Register 에 대해 나타나 있는데, 각 CRL 부터 LCKR 까지 GPIO_BASE 주소로 부터 offset 을 가진다.
 
-`Offset
 
 ```
+//offset
 CRL = 0x00
 CRH = 0x04
 IDR = 0x08
