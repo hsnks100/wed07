@@ -31,7 +31,7 @@ Auto Configure버튼을 눌르면 Dstream 장비가 JTAG를 통해 프로세서 
 
 이제 Debugger 가 이 설정파일에 관한 디바이스를 import 하기 위해 
 
-```
+``` cpp
 cdbimporter.exe -t c:\db c:\db_connect
 ```
 
@@ -92,7 +92,7 @@ memory mapping에 사용될 memory map.
 그림을 보면 GPIO x Register 에 대해 나타나 있는데, 각 CRL 부터 LCKR 까지 GPIO_BASE 주소로 부터 offset 을 가진다.
 
 
-```
+``` cpp
 //offset
 CRL = 0x00
 CRH = 0x04
@@ -153,7 +153,7 @@ if(data & (1 << 3)) // 3번째 bit 가 1인지 검사
 
 
 
-```
+``` cpp
 #define RCC_BASE	 	0x40021000
 #define RCC_APB2ENR	REGISTER_32(RCC_BASE + 0x18 )
 (*(volatile unsigned *)0x40021018) |= 0x3c; // A, B, C, D Port Enable 
@@ -178,7 +178,7 @@ LED 는 기본적으로 PortD 를 사용하여 동작시킬 수 있다.
 
 GPIOD_BSRR, GPIOD_CRL 두개의 레지스터에 값을 넣으면서 구현 가능하다.
 
-```
+``` cpp
 LED1 : BS2
 LED2 : BS3
 LED3 : BS4
@@ -225,7 +225,7 @@ GPIOC_IDR : input data register 를 이용해서 탐지한다.
 GPIOC_IDR 의 주소는 0x40011008.
 조이스틱을 상하좌우로 컨트롤 하면 bit 가 다음과 같이 바뀌게 된다.
 
-```
+``` cpp
 0b00x0 0000
 0b000x 0000
 0b0000 x000
@@ -277,7 +277,7 @@ void onAll()
 ## S1, S2 버튼 탐지
 ![](../images/experiment01/Button.jpg)
 
-```
+``` cpp
 CRL = 0x00
 CRH = 0x04
 IDR = 0x08
@@ -290,7 +290,7 @@ LCKR = 0x18
 버튼은 PORTD 를 이용해서 탐지가 가능하다. 좀더 자세히 쓰면 PORTD_IDR 을 통해서 탐지가 가능하다. 좀 전 LED 를 제어할 때도 PORTD 를 썼는데, 입력을 받을 때도 같은 PORT 를 쓰는게 가능하다. 
 출력할 땐 PORTD_CNF, PORTD_BSRR 을 썼고, 입력을 받을 땐 PORTD_IDR 을 쓴다.
 
-```
+``` cpp
 S1 가 눌러졌을 땐 
 0b0000 x000 0000 0000
 S2 가 눌러졌을 땐 
