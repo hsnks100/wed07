@@ -178,7 +178,7 @@ LED 는 기본적으로 PortD 를 사용하여 동작시킬 수 있다.
 
 GPIOD_BSRR, GPIOD_CRL 두개의 레지스터에 값을 넣으면서 구현 가능하다.
 
-``` 
+```
 LED1 : BS2
 LED2 : BS3
 LED3 : BS4
