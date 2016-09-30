@@ -12,319 +12,60 @@ DStream 과 Cortex-M3 으로 하는 실험이다. DStream 엔 JTAG 라는 디버
 DStream 으로 Cortex-M3 에 axf 를 플래시 다운로더를 통해서 작업할 수 있다. 
 
 # 개요
-Eclipse for DS-5 로 보드의 레지스터 값을 조작하는 프로그램을 플래시 다운로더로 보드의 cpu 로 전송시켜 LED를 제어한다.
+주어진 Scatter file을 이용하여 flash memory에 load한 것을 가지고 motor를 작동시킨다. 
 
 # 세팅
 
-Debug Hardware Config를 이용하여  host PC에 연결된 Dstream 목록 중에 해당 Dstream 항복을 선택한 뒤, Connect한다. 
-Auto Configure버튼을 눌르면 Dstream 장비가 JTAG를 통해 프로세서 내부 Debug Logic의 각 컴포넌트에 대한 체인 정보를 읽어온다.  
+![](../images/experiment02/preferences.PNG)
+먼저 프로젝트를 생성하고 제공된 PSU로 Database 설정. 
 
-![](../images/experiment01/1.png)
-위와 같은 hardware config 프로그램으로 하드웨어 설정을 잡고, 하드웨어 설정 파일인 rvc 를 원하는 위치에 저장한다.
->ex) c:\db\db_connect
-![](../images/experiment01/2.png)
+![](../images/experiment02/setting.PNG)
+4주차 실험과 동일하게 세팅하되 RO,RW base address 부분의 값을 지우고 새로 Scatter file(--scatter) 부분에 주어진 Scatter 파일 위치 지정.
 
-이제 Debugger 가 이 설정파일에 관한 디바이스를 import 하기 위해 
+![](../images/experiment02/setting3.png)
+Debug Configuration의 Connection 탭에서 PSU의 Cortex-M3로 연결.
 
-``` cpp
-cdbimporter.exe -t c:\db c:\db_connect
-```
+![](../images/experiment02/debugger2.png)
+File 탭의 해당 부분의 값을 지운다.
 
-라는 명령어로 import 한다.
+![](../images/experiment02/debugger1.PNG)
+Debugger 탭의 Connect only 를 선택.
 
-![](../images/experiment01/3.png)
+![](../images/experiment02/setting4.png)
+프로젝트 debug 후, Flash Load를 위해 Command 창에 "info flash" 명령어를 쳐서 flash memory의 설정을 확인.
 
-Eclipse for DS-5 를 이용하여 C++ Proejct 를 생성한다. 
-
-![](../images/experiment01/RO_RW.png)
-
-RO base address(--ro_base)와 RW base address(--rw_base)에 각각 SRAM (aliased by bit-banding)의 메모리 주소를 입력한다.
-
-RO base address(--ro_base) = 0x2000 0000.
-
-RW base address(--rw_base) = 0x2000 0000 ~ Ox2000 FFFF 중 임의의 주소
-
-![](../images/experiment01/target_cpu.png)	
-
-Target CPU(--cpu) 자리에 우리가 STM32 보드에서 사용할 CPU이름 Cortex-M3를 입력.
-
-![](../images/experiment01/image_entry_point.png)
-
-여기에도
-Image entry point(--entry) = main
-Target CPU(--cpu) = Cortex-M3 
-
-값을 넣어준다.
-
-![](../images/experiment01/4.png)
-프로젝트가 생성된 모습이다.
+![](../images/experiment02/setting2.PNG)
+확인 후, Flash load ".axf 경로" 를 입력하면, board 로 source가 보내진다. 
 
 
-아무것도 하지 않은채 다음 코드를 build 하게 되면 axf 파일이 Debug 하위 폴더에 생성이 된다.
+motor 에 전원 공급장치, DStream와 motor 를 연결한 모습. 
 
-``` cpp
-int main(){
-  return 0;
-}
-```
-
-Debug Configuration 에 들어가서 axf 파일을 지정한 뒤, Debug 를 누르면 플래시 다운로더가 axf 파일을 전송하면서 우리가 만든 프로그램이 ARM 보드 상에서 동작하게 된다.
-
-
-![](../images/experiment01/dstream.png)
+![](../images/experiment02/connect_all.jpg)
+전체적인 기계 연결 모습
 
 # 구현
 
-## GPIO memory map
+LED 불키기와 조이스틱 탐지에 대해서는 4주차 실험을 참조한다. 
 
-![](../images/experiment01/memory_map2.PNG)
+##motor Driver
 
-memory mapping에 사용될 memory map.
+###Motor Driver 구조
 
-각 register 별로 memory address 가 나타나 있다.
+![](../images/experiment02/motor_driver_circuit.png)
+다음은 Motor Driver 회로도이다. 
 
+![](../images/experiment02/motor1.png)
++12v power 에 (+) 전압을 인가하고, power GND 에 (-) 전압을 인가한다. 
+motor를 output A와 input1,2가 연결되어있고 output B와 input3,4가 연결되어있다. 
 
-## GPIO Register 에 대해
-![](../images/experiment01/registers.png)
 
+![](../images/experiment02/motor_board.jpg)
+Motor Driver와 Cortex 연결 모습. 
 
-그림을 보면 GPIO x Register 에 대해 나타나 있는데, 각 CRL 부터 LCKR 까지 GPIO_BASE 주소로 부터 offset 을 가진다.
 
 
-``` cpp
-//offset
-CRL = 0x00
-CRH = 0x04
-IDR = 0x08
-ODR = 0x0C
-BSRR = 0x10
-BRR = 0x14
-LCKR = 0x18
-```
 
-앞으로 이 GPIO 의 원하는 목적에 따라 해당 register 를 set/unset 하면서 과제를 수행할 것이다.
 
-이 register 변수를 제어하기 위해서 간단한 비트연산의 지식이 필요하다.
-
-
-
-
-## Bit 다루기
-
-Bit 는 여기서 32bit 변수라고 가정한다. 그리고 bit 는 0 부터 시작한다고 생각한다.
-
-### Bit Set
-
-bit set 은 | (OR) 연산을 통해 구현하게 된다. 
-
-``` cpp
-BIT |= (1 << 3) // 3 번째 비트를 set
-BIT |= (1 << n) // n 번째 비트를 set
-
-// macro
-#define set_bit(data, loc)      ((data) |= (0x1 << (loc)))
-
-```
-
-### Bit Unset
-bit unset 은 & 와 ~ 을 조합하여 구현하게 되는데 코드는 다음과 같다.
-
-``` cpp
-BIT &= ~(1 << 3) // 3번째 비트를 unset
-
-/* 한 비트 클리어 */
-#define clear_bit(data, loc)    ((data) &= ~(0x1 << (loc)))
-
-```
-
-### Bit Check
-
-bit check 방법은 다음과 같다.
-
-``` cpp
-if(data & (1 << 3)) // 3번째 bit 가 1인지 검사
-
-/* 비트 검사 */
-#define check_bit(data, loc)    ((data) & (0x1 << (loc)))
-
-```
-
-## Port Enable
-
-
-
-``` cpp
-#define RCC_BASE	 	0x40021000
-#define RCC_APB2ENR	REGISTER_32(RCC_BASE + 0x18 )
-(*(volatile unsigned *)0x40021018) |= 0x3c; // A, B, C, D Port Enable 
-```
-
-![](../images/experiment01/porte.png)
-
-
-RCC_APB2ENR 에서 PORT 들을 enable 시켜줘야 사용이 가능한데,  위에서 표를 보면 PORTAEN, PORTBEN, PORTCEN, PORTDEN 에 해당된다.
-
-해당 비트를 2진수로 표현하면 0b0011 1100 인데 16진수로 표현하면 0x3C 가 된다.
-그래서 0x40021018 주소에 0x3C 를 넣어주면 enable 이 된다.
-
-
-![](../images/experiment01/ref1.png) 
-![](../images/experiment01/ref2.png) 
-![](../images/experiment01/ref3.png) 
-
-
-
-## LED 에 불켜기
-![](../images/experiment01/LED.jpg)
-
-LED 는 기본적으로 PortD 를 사용하여 동작시킬 수 있다.
-
-GPIOD_BSRR, GPIOD_CRL 두개의 레지스터에 값을 넣으면서 구현 가능하다.
-
-``` cpp
-LED1 : BS2
-LED2 : BS3
-LED3 : BS4
-LED4 : BS7
-
-0b10000000 : LED4
-0b00010000 : LED3
-0b00001000 : LED2
-0b00000100 : LED1 
-```
-
-LED1을 동작시키는 실제 코드는 다음과 같다. 
-
-
-``` cpp
-const int ALE1= 0x04;
-const int ALE2= 0x08;
-const int ALE3= 0x10;
-const int ALE4= 0x80;
-
-void on1()
-{
-  (*(volatile unsigned *)0x40011400) &= ~0x10011100; // all unset
-  (*(volatile unsigned *)0x40011400) |= 0x00000100; // 1
-  (*(volatile unsigned *)0x40011410) = ALE1;
-}
-
-int main(){ 
-  (*(volatile unsigned *)0x40011404) = 0x44444444; // reset
-  (*(volatile unsigned *)0x40011400) = 0x10011100; // 1 
-  (*(volatile unsigned *)0x40011008) = 0x00000000;
-  return 0;
-}
-
-```
-
-
-## 조이스틱 탐지
-![](../images/experiment01/Joystick.jpg)
-
-조이스틱은 PortC 를 이용해서 탐지가 가능하다.
-
-GPIOC_IDR : input data register 를 이용해서 탐지한다.
-
-GPIOC_IDR 의 주소는 0x40011008.
-조이스틱을 상하좌우로 컨트롤 하면 bit 가 다음과 같이 바뀌게 된다.
-
-``` cpp
-0b00x0 0000
-0b000x 0000
-0b0000 x000
-0b0000 0x00
-```
-
-조이스틱 입력이 들어오면 x 가 0으로 바뀐다.
-어떻게 바뀌는지 알았으니, 코드로 구현하면 다음과 같다.
-
-조이스틱이 눌러졌을 때 처리
-
-
-``` cpp
-if(~(*(volatile unsigned *)0x40011008) & 0x4)
-  on1();
-else if(~(*(volatile unsigned *)0x40011008) & 0x20)
-  on4();
-else if(~(*(volatile unsigned *)0x40011008) & 0x8)
-  on2();
-else if(~(*(volatile unsigned *)0x40011008) & 0x10)
-  on3();
-```
-
-
-
-조이스틱이 눌러졌을 땐 PORTC_IDR 값의 0b000x 0000 0000.
-
-x부분의 값이 0으로 바뀌는데 마찬가지로 코드로 구현하면 다음과 같다.
-
-LED에 불이 전부 들어온 경우
-
-
-``` cpp
-if(~(*(volatile unsigned *)0x40010C08) & 0x100)
-  onAll(); 
-
-void onAll()
-{
-  (*(volatile unsigned *)0x40011400) = 0x10011100; // 1
-  (*(volatile unsigned *)0x40011410) = ALE1 | ALE2 | ALE3 | ALE4;
-}
-
-```
-
-
-동작된 그림은 다음과 같다.
-
-![](../images/experiment01/real1.jpg)
-
-
-
-## S1, S2 버튼 탐지
-![](../images/experiment01/Button.jpg)
-
-
-
-``` cpp
-CRL = 0x00
-CRH = 0x04
-IDR = 0x08
-ODR = 0x0C
-BSRR = 0x10
-BRR = 0x14
-LCKR = 0x18
-```
-
-버튼은 PORTD 를 이용해서 탐지가 가능하다. 좀더 자세히 쓰면 PORTD_IDR 을 통해서 탐지가 가능하다. 좀 전 LED 를 제어할 때도 PORTD 를 썼는데, 입력을 받을 때도 같은 PORT 를 쓰는게 가능하다. 
-출력할 땐 PORTD_CNF, PORTD_BSRR 을 썼고, 입력을 받을 땐 PORTD_IDR 을 쓴다.
-
-
-``` cpp
-S1 가 눌러졌을 땐 
-0b0000 x000 0000 0000
-S2 가 눌러졌을 땐 
-0b000x 0000 0000 0000
-```
-
-위의 x 인 부분이 해당 버튼이 눌러졌을 때 0으로 바뀐다. 
-이를 탐지하는 코드를 쓰면 다음과 같다.
-
-
-``` cpp
-while ( !(((*(volatile unsigned *)0x40011408) & 0x0800) >> 11) ) {
-  on1(); delay();
-  on2(); delay();
-  on3(); delay();
-  on4(); delay();
-}
-while ( !(((*(volatile unsigned *)0x40011408) & 0x1000) >> 12) ) {
-  on4(); delay();
-  on3(); delay();
-  on2(); delay();
-  on1(); delay();
-}
-```
 
 
 
@@ -332,10 +73,6 @@ while ( !(((*(volatile unsigned *)0x40011408) & 0x1000) >> 12) ) {
 
 # 결론
 
-처음 다루는 ARM 보드라서 많이 헷갈렸고 어려웠다. 예비실험 조의 발표에서 조금 정보가 덜 주어진 것 같아 처음엔 조원 모두가 불만이었으나, 문제를 해결해 나가면서 우리가 다루는 플랫폼에 대해서 점점 익숙해졌다.
-만약 모든 정보가 주어지고 거기에 맞춰서 그냥 따라하기만 했다면 해당 정보들이 머리 속에 들어가있지 않았을것 같다. 고생한만큼 큰 공부가 되었고, 앞으로 수행할 과제에 대해 스스로 해결하는 힘을 길렀다고 생각한다.
-또한 처음이라서 memory 주소를 그대로 쓰면서 과제를 했는데, 다음부터는 미리 define 된 bit macro  와 stm32f macro 를 적극 활용해서 readability 를 높이는 방향으로 코딩을 할 것이다.  
-memory address를 통해 ARM 보드의 기능을 다루는 법을 알게 되었다. 
 
 
 
