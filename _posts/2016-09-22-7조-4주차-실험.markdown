@@ -1,6 +1,5 @@
 ---
 layout: post
-title: "t1"
 author: ...
 date: 2016-09-30 17:48 +0900
 tags: 
