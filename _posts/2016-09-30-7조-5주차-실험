@@ -1,0 +1,40 @@
+---
+layout: post
+date: 2016-09-30 02:01 +0900
+author: 한성희, 이호욱, 한경수
+tags: 
+---
+
+* 목차
+
+* table of contents
+{:toc} 
+
+# ARM DS-5 
+
+DStream 과 Cortex-M3 으로 하는 실험이다. DStream 엔 JTAG 라는 디버거가 있고, 플래시 다운로드가 있어서 Cortex-M3 이라는 cpu 로 전송이 가능하다. 또한 이 JTAG 를 통해서 실시간 디버깅이 가능하다.
+
+DStream 으로 Cortex-M3 에 axf 를 플래시 다운로더를 통해서 작업할 수 있다. 
+
+# 개요
+Eclipse for DS-5 로 보드의 레지스터 값을 조작하는 프로그램을 플래시 다운로더로 보드의 cpu 로 전송시켜 LED를 제어한다.
+
+Scatter file의 이용과 flash memory를 사용하여 motor를 제어한다.
+
+# 세팅
+
+Dstream 장비를 세팅하는 것은 앞선 실험과 동일함으로 생략..
+
+
+![](../images/experiment02/preferences.PNG)
+
+프로젝트를 생성하고 Database를 추가.
+
+![](../images/experiment02/setting.PNG)
+
+프로젝트 설정은 4주차 실험과 동일하되, 4주차 실험에서 이용한 RO, RW base address 값은 지우고 Scatter file(--scatter) 부분에 다운받은 scatter file을 선택. 
+
+
+
+# 결론
+
