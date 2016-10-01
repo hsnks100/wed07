@@ -8,6 +8,7 @@ comments: true
 
 # 개요
 Scatter Loading File 작성 및 Flash Memory로의 Loading 을 통한 Flash Level 의 디버깅.
+
 Flash Memory로 부터 Source를 가져와 Motor Driver 를 이용한 Motor 제어. 
 
 # 세팅
@@ -16,25 +17,37 @@ Flash Memory로 부터 Source를 가져와 Motor Driver 를 이용한 Motor 제�
 
 먼저 프로젝트를 생성하고 제공된 PSU로 Database 설정. 
 
+
+
 ![](../images/experiment02/setting.PNG)
 
 4주차 실험과 동일하게 세팅하되 RO,RW base address 부분의 값을 지우고 새로 Scatter file(--scatter) 부분에 주어진 Scatter 파일 위치 지정.
+
+
 
 ![](../images/experiment02/setting3.png)
 
 Debug Configuration의 Connection 탭에서 PSU의 Cortex-M3로 연결.
 
+
+
 ![](../images/experiment02/debugger2.png)
 
 File 탭의 해당 부분의 값을 지운다.
+
+
 
 ![](../images/experiment02/debugger1.PNG)
 
 Debugger 탭의 Connect only 를 선택.
 
+
+
 ![](../images/experiment02/setting4.png)
 
 프로젝트 debug 후, Flash Load를 위해 Command 창에 "info flash" 명령어를 쳐서 flash memory의 설정을 확인.
+
+
 
 ![](../images/experiment02/setting2.PNG)
 
@@ -43,8 +56,13 @@ Debugger 탭의 Connect only 를 선택.
 
 
 
+
+
 ![](../images/experiment02/include.PNG)
+
 이것은 주어진 Library 로 원래 code의 주소와 값을 상수변수로 대체할 때 사용하기 위해 Library include path를 지정한다.
+
+
 
 
 
@@ -57,6 +75,8 @@ Debugger 탭의 Connect only 를 선택.
 
 LED 불키기와 조이스틱 탐지에 대해서는 4주차 실험을 참조한다. 
 
+
+
 ##Motor 
 
 ###Motor Driver 구조
@@ -65,6 +85,8 @@ LED 불키기와 조이스틱 탐지에 대해서는 4주차 실험을 참조한
 
 다음은 Motor Driver 회로도이다. 
 
+
+
 ![](../images/experiment02/motor1.png)
 
 +12v power 에 (+) 전압을 인가하고, power GND 에 (-) 전압을 인가한다. 
@@ -72,20 +94,30 @@ motor 를 output A 와 input1,2 가 연결되어있고 output B 와 input3,4 가
 
 Motor Driver 의 IN1, IN2, IN3, IN4 를 Cortex-M3 board 의 PC8, PC9, PC10, PC11에 순서대로 연결.
 
+
+
 ![](../images/experiment02/motor_board.jpg)
 
 Motor Driver와 Cortex 연결 모습.
 
+
+
 ![](../images/experiment02/motor2.png)
 
 입력 IN 에 인가된 전압에 따른 Motor 회전 방향을 나타내는 표이다. 이를 참조하여 Motor 회전 방향을 제어한다. 
+
+
+
 
 ###Motor 작동시키기
 
 4주차 실험에서 사용한 조이스틱 제어에 따른 LED 불을 키는 code 에 motor 를 작동 시키는 조건을 추가한다. 
 
 
+
 ...여기에 motor 작동 code 추가 및 설명...
+
+
 
 
 
@@ -99,12 +131,16 @@ Motor Driver와 Cortex 연결 모습.
 ![](../images/experiment02/library1.png)
 예를 들어, include 부분을 이용하여 다음과 같이 code를 수정할 수 있다. 
 
+
 ```cpp
 //원래 code
 (*(volatile unsigned *)0x40011410) = 0x04;
  
 //Library를 이용하여 수정한 code
 GPIOD->BSRR = GPIO_BSRR_BS2;
+
+
+
 
 
 ###Library를 이용한 전체 Code
@@ -212,6 +248,8 @@ int main() {
 
 	}
 }
+
+
 
 ##Scatter file
 
