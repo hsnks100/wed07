@@ -5,74 +5,251 @@ date: 2016-09-30 17:48 +0900
 tags: 
 comments: true
 ---
-# ARM DS-5 
-
-DStream 과 Cortex-M3 으로 하는 실험이다. DStream 엔 JTAG 라는 디버거가 있고, 플래시 다운로드가 있어서 Cortex-M3 이라는 cpu 로 전송이 가능하다. 또한 이 JTAG 를 통해서 실시간 디버깅이 가능하다.
-
-DStream 으로 Cortex-M3 에 axf 를 플래시 다운로더를 통해서 작업할 수 있다. 
 
 # 개요
-주어진 Scatter file을 이용하여 flash memory에 load한 것을 가지고 motor를 작동시킨다. 
+Scatter Loading File 작성 및 Flash Memory로의 Loading 을 통한 Flash Level 의 디버깅.
+Flash Memory로 부터 Source를 가져와 Motor Driver 를 이용한 Motor 제어. 
 
 # 세팅
 
 ![](../images/experiment02/preferences.PNG)
+
 먼저 프로젝트를 생성하고 제공된 PSU로 Database 설정. 
 
 ![](../images/experiment02/setting.PNG)
+
 4주차 실험과 동일하게 세팅하되 RO,RW base address 부분의 값을 지우고 새로 Scatter file(--scatter) 부분에 주어진 Scatter 파일 위치 지정.
 
 ![](../images/experiment02/setting3.png)
+
 Debug Configuration의 Connection 탭에서 PSU의 Cortex-M3로 연결.
 
 ![](../images/experiment02/debugger2.png)
+
 File 탭의 해당 부분의 값을 지운다.
 
 ![](../images/experiment02/debugger1.PNG)
+
 Debugger 탭의 Connect only 를 선택.
 
 ![](../images/experiment02/setting4.png)
+
 프로젝트 debug 후, Flash Load를 위해 Command 창에 "info flash" 명령어를 쳐서 flash memory의 설정을 확인.
 
 ![](../images/experiment02/setting2.PNG)
+
 확인 후, Flash load ".axf 경로" 를 입력하면, board 로 source가 보내진다. 
 
 
-motor 에 전원 공급장치, DStream와 motor 를 연결한 모습. 
+
+
+![](../images/experiment02/include.PNG)
+이것은 주어진 Library 로 원래 code의 주소와 값을 상수변수로 대체할 때 사용하기 위해 Library include path를 지정한다.
+
+
+
 
 ![](../images/experiment02/connect_all.jpg)
+
 전체적인 기계 연결 모습
 
 # 구현
 
 LED 불키기와 조이스틱 탐지에 대해서는 4주차 실험을 참조한다. 
 
-##motor Driver
+##Motor 
 
 ###Motor Driver 구조
 
 ![](../images/experiment02/motor_driver_circuit.png)
+
 다음은 Motor Driver 회로도이다. 
 
 ![](../images/experiment02/motor1.png)
-+12v power 에 (+) 전압을 인가하고, power GND 에 (-) 전압을 인가한다. 
-motor를 output A와 input1,2가 연결되어있고 output B와 input3,4가 연결되어있다. 
 
++12v power 에 (+) 전압을 인가하고, power GND 에 (-) 전압을 인가한다. 
+motor 를 output A 와 input1,2 가 연결되어있고 output B 와 input3,4 가 연결되어있다. 
+
+Motor Driver 의 IN1, IN2, IN3, IN4 를 Cortex-M3 board 의 PC8, PC9, PC10, PC11에 순서대로 연결.
 
 ![](../images/experiment02/motor_board.jpg)
-Motor Driver와 Cortex 연결 모습. 
+
+Motor Driver와 Cortex 연결 모습.
+
+![](../images/experiment02/motor2.png)
+
+입력 IN 에 인가된 전압에 따른 Motor 회전 방향을 나타내는 표이다. 이를 참조하여 Motor 회전 방향을 제어한다. 
+
+###Motor 작동시키기
+
+4주차 실험에서 사용한 조이스틱 제어에 따른 LED 불을 키는 code 에 motor 를 작동 시키는 조건을 추가한다. 
+
+
+...여기에 motor 작동 code 추가 및 설명...
 
 
 
 
+##Library 이용
+
+###주어진 Library 이용하기
+
+주어진 Library 를 이용하여 위의 code 속 주소와 값을 상수변수로 대체할 수 있다. 
+
+![](../images/experiment02/library1.png)
+예를 들어, include 부분을 이용하여 다음과 같이 code를 수정할 수 있다. 
+
+```cpp
+//원래 code
+(*(volatile unsigned *)0x40011410) = 0x04;
+ 
+//Library를 이용하여 수정한 code
+GPIOD->BSRR = GPIO_BSRR_BS2;
 
 
+###Library를 이용한 전체 Code
+
+``` cpp
+//주어진 Library 를 include 시킨다
+#include "stm32f10x_gpio.h"
+#include "stm32f10x.h"
+
+void delay(){
+  for(volatile int i =0; i < 100000; i++)
+    ;
+}
+
+void on1()
+{
+  GPIOD->CRL &= ~(GPIO_CRL_MODE2_0 | GPIO_CRL_MODE3_0 | GPIO_CRL_MODE4_0 | GPIO_CRL_MODE7_0);
+
+  GPIOD->CRL |= GPIO_CRL_MODE2_0; // 1
+  GPIOD->BSRR = GPIO_BSRR_BS2;
+  GPIOC->BRR = GPIO_BRR_BR8 | GPIO_BRR_BR9 | GPIO_BRR_BR10 | GPIO_BRR_BR11;
+
+  GPIOC->BSRR = GPIO_BSRR_BS8 | GPIO_BSRR_BS10;
+  delay();
+  GPIOC->BRR = 0x0;
+}
+
+void on2()
+{
+//  GPIOD->CRL &= ~0x10011100;
+  GPIOD->CRL &= ~(GPIO_CRL_MODE2_0 | GPIO_CRL_MODE3_0 | GPIO_CRL_MODE4_0 | GPIO_CRL_MODE7_0);
+  GPIOD->CRL |= GPIO_CRL_MODE3_0; // 1
+  GPIOD->BSRR = GPIO_BSRR_BS3;
+
+  GPIOC->BRR = GPIO_BRR_BR8 | GPIO_BRR_BR9 | GPIO_BRR_BR10 | GPIO_BRR_BR11;
+
+    GPIOC->BSRR = (GPIO_BSRR_BS8 | GPIO_BSRR_BS11); // 0x900;
+    delay();
+    GPIOC->BRR = 0x0;
+}
+
+void on3()
+{
+  GPIOD->CRL &= ~(GPIO_CRL_MODE2_0 | GPIO_CRL_MODE3_0 | GPIO_CRL_MODE4_0 | GPIO_CRL_MODE7_0);
+  GPIOD->CRL |= GPIO_CRL_MODE4_0; // 1
+  GPIOD->BSRR = GPIO_BSRR_BS4;
+
+  GPIOC->BRR = GPIO_BRR_BR8 | GPIO_BRR_BR9 | GPIO_BRR_BR10 | GPIO_BRR_BR11;
+
+    GPIOC->BSRR = (GPIO_BSRR_BS9| GPIO_BSRR_BS10); //0x600;
+    delay();
+    GPIOC->BRR = 0x0;
+}
+void on4()
+{
+  GPIOD->CRL &= ~(GPIO_CRL_MODE2_0 | GPIO_CRL_MODE3_0 | GPIO_CRL_MODE4_0 | GPIO_CRL_MODE7_0);
+  GPIOD->CRL |= GPIO_CRL_MODE7_0; // 1
+  GPIOD->BSRR = GPIO_BSRR_BS7;
+  GPIOC->BRR = GPIO_BRR_BR8 | GPIO_BRR_BR9 | GPIO_BRR_BR10 | GPIO_BRR_BR11;
+
+
+    GPIOC->BSRR = (GPIO_BSRR_BS9 | GPIO_BSRR_BS11); // 0xa00;
+    delay();
+    GPIOC->BRR = 0x0;
+}
+
+
+int main() {
+
+	RCC->APB2ENR |= (RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN); //0x3c; // LED portD enable
+	GPIOD->CRH = 0x44444444; //
+//	GPIOD->CRL = 0x10011100; // 1
+
+	GPIOD->CRL = (GPIO_CRL_MODE2_0 | GPIO_CRL_MODE3_0 | GPIO_CRL_MODE4_0 | GPIO_CRL_MODE7_0);
+	GPIOC->CRH = (GPIO_CRH_MODE8 | GPIO_CRH_MODE9 | GPIO_CRH_MODE10 | GPIO_CRH_MODE11);
+
+	GPIOC->IDR = 0x00000000;
+
+	while(1) {
+
+		if(~GPIOC->IDR & (GPIO_IDR_IDR2)) // 0x4)
+			on1();
+		else if(~GPIOC->IDR & GPIO_IDR_IDR5) // 0x20)
+			on4();
+		else if(~GPIOC->IDR & GPIO_IDR_IDR3) // 0x8)
+			on2();
+		else if(~GPIOC->IDR & GPIO_IDR_IDR4) // 0x10)
+			on3();
+		else {//if ( (GPIOC->IDR & (0xFFFE) != (0xFFFE))){
+
+			GPIOC->BSRR = 0X00000000;
+
+			GPIOC->BRR = GPIO_BRR_BR8;
+			GPIOC->BRR = GPIO_BRR_BR10;
+			GPIOC->BRR = GPIO_BRR_BR8 | GPIO_BRR_BR10;
+			GPIOC->BRR = GPIO_BRR_BR9 | GPIO_BRR_BR11;
+			GPIOD->BRR = GPIO_BRR_BR2;
+			GPIOD->BRR = GPIO_BRR_BR3;
+			GPIOD->BRR = GPIO_BRR_BR4;
+			GPIOD->BRR = GPIO_BRR_BR7;
+		}
+
+
+		//    if(~GPIOB_IDR & 0x100)
+
+	}
+}
+
+##Scatter file
+
+###Scatter file 분석
+
+![](../images/experiment02/datasheet1.PNG)
+
+SRAM 과 Flash Memory(ROM)의 Memory address 값
+
+
+``` cpp
+//Datasheet를 참고하면, LR_IROM1 0x08000000 0x00008000 에서 뒤에 16 진수 중 첫 번째는 load section 의 시작주소, 두 번째는 section 의 크기를 말한다
+LR_IROM1 0x08000000 0x00008000  
+{
+    ER_IROM1 0x08000000 0x00008000      
+    {  
+       *.o(RESET, +First)	//*.o(RESET, +First)은 모든 .o 코드를 RESET Section 의 처음(First)에 위치시킨다 
+       *(InRoot$$Sections)	//ARM Library section 을 root section 에 자동 배치시킨다
+       .ANY (+RO)	//나머지 code 와 RO data 를 ROM에 위치시킨다
+    }
+    RW_IRAM1 0x20000000 0x00008000  //이건 RAM Section 이므로 위의 두개와 달리 SRAM 의 시작주소 0x20000000 를 사용
+    {  
+       .ANY (+RW +ZI)	//RW 와 ZI data section 을 RAM 에 위치시킨다
+    }
+}
+```
+
+###Scatter file 이용 목적
+
+![](../images/experiment02/scatter1.png)
+
+여러 개의 입력 section을 출력 section으로 "그룹화" 하고 memory map에 효율적으로 "배치"하기 위해서 사용한다. 
 
 
 
 
 # 결론
 
-
-
-
+저번 실험에서 LED와 나머지 설정을 다 한 상태여서 대체로 무난하게 진행할 수 있었다. 하지만 Motor Driver 에 연결할 선이 많아 관리하기 힘들어 그부분에서 시간을 많이 끌었다.
+그래도 Motor Driver 가 있어서 추가 작업 없이 선 연결과 각 해당 Port 설정만으로 motor를 동작시킬 수 있었다. Scatter 파일 또한 처음 접한 것이지만 알아서 입력 섹션의 값을 그룹화 시켜줘서 도움이 되었다. 
+그리고 인터럽트와 폴링 방식의 차이를 정확히 이해할 수 있었고 다양한 버튼 방식(Floating, Pull-up, Pull-down)의 종류를 알게 되었다. 
