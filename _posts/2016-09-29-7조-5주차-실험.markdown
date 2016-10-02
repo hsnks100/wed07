@@ -131,23 +131,27 @@ GPIOx_BSRR과 GPIOx_BRR은 다음과 같다.
 ![](../images/experiment02/GPIOC_BRR.png)
 BS8, BS9, BS10, BS11 비트를 set, unset하여 motor를 회전을 조절하고
 BR8, BR9, BR10, BR11 비트를 set하여 motor를 정지 시킨다.
+
+### motor 회전
  
 ```cpp
-### motor 회전
-	GPIOC->BSRR = GPIO_BSRR_BS8 | GPIO_BSRR_BS9 | GPIO_BSRR_BS10 | GPIO_BSRR_BS11;
+GPIOC->BSRR = GPIO_BSRR_BS8 | GPIO_BSRR_BS9 | GPIO_BSRR_BS10 | GPIO_BSRR_BS11;
+```
 
 
 ### motor 정지
-    GPIOC->BSRR = 0X00000000;
 
-    GPIOC->BRR = GPIO_BRR_BR8;
-    GPIOC->BRR = GPIO_BRR_BR10;
-    GPIOC->BRR = GPIO_BRR_BR8 | GPIO_BRR_BR10;
-    GPIOC->BRR = GPIO_BRR_BR9 | GPIO_BRR_BR11;
-    GPIOD->BRR = GPIO_BRR_BR2;
-    GPIOD->BRR = GPIO_BRR_BR3;
-    GPIOD->BRR = GPIO_BRR_BR4;
-    GPIOD->BRR = GPIO_BRR_BR7;
+```cpp
+GPIOC->BSRR = 0X00000000;
+
+GPIOC->BRR = GPIO_BRR_BR8;
+GPIOC->BRR = GPIO_BRR_BR10;
+GPIOC->BRR = GPIO_BRR_BR8 | GPIO_BRR_BR10;
+GPIOC->BRR = GPIO_BRR_BR9 | GPIO_BRR_BR11;
+GPIOD->BRR = GPIO_BRR_BR2;
+GPIOD->BRR = GPIO_BRR_BR3;
+GPIOD->BRR = GPIO_BRR_BR4;
+GPIOD->BRR = GPIO_BRR_BR7;
 ```
 
 
@@ -166,7 +170,7 @@ BR8, BR9, BR10, BR11 비트를 set하여 motor를 정지 시킨다.
 ```cpp
 //원래 code
 (*(volatile unsigned *)0x40011410) = 0x04;
- 
+
 //Library를 이용하여 수정한 code
 GPIOD->BSRR = GPIO_BSRR_BS2;
 ``` 
@@ -198,16 +202,16 @@ void on1()
 
 void on2()
 {
-//  GPIOD->CRL &= ~0x10011100;
+  //  GPIOD->CRL &= ~0x10011100;
   GPIOD->CRL &= ~(GPIO_CRL_MODE2_0 | GPIO_CRL_MODE3_0 | GPIO_CRL_MODE4_0 | GPIO_CRL_MODE7_0);
   GPIOD->CRL |= GPIO_CRL_MODE3_0; // 1
   GPIOD->BSRR = GPIO_BSRR_BS3;
 
   GPIOC->BRR = GPIO_BRR_BR8 | GPIO_BRR_BR9 | GPIO_BRR_BR10 | GPIO_BRR_BR11;
 
-    GPIOC->BSRR = (GPIO_BSRR_BS8 | GPIO_BSRR_BS11); // 0x900;
-    delay();
-    GPIOC->BRR = 0x0;
+  GPIOC->BSRR = (GPIO_BSRR_BS8 | GPIO_BSRR_BS11); // 0x900;
+  delay();
+  GPIOC->BRR = 0x0;
 }
 
 void on3()
@@ -218,9 +222,9 @@ void on3()
 
   GPIOC->BRR = GPIO_BRR_BR8 | GPIO_BRR_BR9 | GPIO_BRR_BR10 | GPIO_BRR_BR11;
 
-    GPIOC->BSRR = (GPIO_BSRR_BS9| GPIO_BSRR_BS10); //0x600;
-    delay();
-    GPIOC->BRR = 0x0;
+  GPIOC->BSRR = (GPIO_BSRR_BS9| GPIO_BSRR_BS10); //0x600;
+  delay();
+  GPIOC->BRR = 0x0;
 }
 void on4()
 {
@@ -230,52 +234,52 @@ void on4()
   GPIOC->BRR = GPIO_BRR_BR8 | GPIO_BRR_BR9 | GPIO_BRR_BR10 | GPIO_BRR_BR11;
 
 
-    GPIOC->BSRR = (GPIO_BSRR_BS9 | GPIO_BSRR_BS11); // 0xa00;
-    delay();
-    GPIOC->BRR = 0x0;
+  GPIOC->BSRR = (GPIO_BSRR_BS9 | GPIO_BSRR_BS11); // 0xa00;
+  delay();
+  GPIOC->BRR = 0x0;
 }
 
 
 int main() {
 
-	RCC->APB2ENR |= (RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN); //0x3c; // LED portD enable
-	GPIOD->CRH = 0x44444444; //
-//	GPIOD->CRL = 0x10011100; // 1
+  RCC->APB2ENR |= (RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN); //0x3c; // LED portD enable
+  GPIOD->CRH = 0x44444444; //
+  //	GPIOD->CRL = 0x10011100; // 1
 
-	GPIOD->CRL = (GPIO_CRL_MODE2_0 | GPIO_CRL_MODE3_0 | GPIO_CRL_MODE4_0 | GPIO_CRL_MODE7_0);
-	GPIOC->CRH = (GPIO_CRH_MODE8 | GPIO_CRH_MODE9 | GPIO_CRH_MODE10 | GPIO_CRH_MODE11);
+  GPIOD->CRL = (GPIO_CRL_MODE2_0 | GPIO_CRL_MODE3_0 | GPIO_CRL_MODE4_0 | GPIO_CRL_MODE7_0);
+  GPIOC->CRH = (GPIO_CRH_MODE8 | GPIO_CRH_MODE9 | GPIO_CRH_MODE10 | GPIO_CRH_MODE11);
 
-	GPIOC->IDR = 0x00000000;
+  GPIOC->IDR = 0x00000000;
 
-	while(1) {
+  while(1) {
 
-		if(~GPIOC->IDR & (GPIO_IDR_IDR2)) // 0x4)
-			on1();
-		else if(~GPIOC->IDR & GPIO_IDR_IDR5) // 0x20)
-			on4();
-		else if(~GPIOC->IDR & GPIO_IDR_IDR3) // 0x8)
-			on2();
-		else if(~GPIOC->IDR & GPIO_IDR_IDR4) // 0x10)
-			on3();
-		else {//if ( (GPIOC->IDR & (0xFFFE) != (0xFFFE))){
+    if(~GPIOC->IDR & (GPIO_IDR_IDR2)) // 0x4)
+      on1();
+    else if(~GPIOC->IDR & GPIO_IDR_IDR5) // 0x20)
+      on4();
+    else if(~GPIOC->IDR & GPIO_IDR_IDR3) // 0x8)
+      on2();
+    else if(~GPIOC->IDR & GPIO_IDR_IDR4) // 0x10)
+      on3();
+    else {//if ( (GPIOC->IDR & (0xFFFE) != (0xFFFE))){
 
-			GPIOC->BSRR = 0X00000000;
+      GPIOC->BSRR = 0X00000000;
 
-			GPIOC->BRR = GPIO_BRR_BR8;
-			GPIOC->BRR = GPIO_BRR_BR10;
-			GPIOC->BRR = GPIO_BRR_BR8 | GPIO_BRR_BR10;
-			GPIOC->BRR = GPIO_BRR_BR9 | GPIO_BRR_BR11;
-			GPIOD->BRR = GPIO_BRR_BR2;
-			GPIOD->BRR = GPIO_BRR_BR3;
-			GPIOD->BRR = GPIO_BRR_BR4;
-			GPIOD->BRR = GPIO_BRR_BR7;
-		}
+      GPIOC->BRR = GPIO_BRR_BR8;
+      GPIOC->BRR = GPIO_BRR_BR10;
+      GPIOC->BRR = GPIO_BRR_BR8 | GPIO_BRR_BR10;
+      GPIOC->BRR = GPIO_BRR_BR9 | GPIO_BRR_BR11;
+      GPIOD->BRR = GPIO_BRR_BR2;
+      GPIOD->BRR = GPIO_BRR_BR3;
+      GPIOD->BRR = GPIO_BRR_BR4;
+      GPIOD->BRR = GPIO_BRR_BR7;
+    }
 
 
-		//    if(~GPIOB_IDR & 0x100)
+    //    if(~GPIOB_IDR & 0x100)
 
-	}
-}
+    }
+  }
 ```
 
 
@@ -294,16 +298,16 @@ SRAM 과 Flash Memory(ROM)의 Memory address 값
 //Datasheet를 참고하면, LR_IROM1 0x08000000 0x00008000 에서 뒤에 16 진수 중 첫 번째는 load section 의 시작주소, 두 번째는 section 의 크기를 말한다
 LR_IROM1 0x08000000 0x00008000  
 {
-    ER_IROM1 0x08000000 0x00008000      
-    {  
-       *.o(RESET, +First)	//*.o(RESET, +First)은 모든 .o 코드를 RESET Section 의 처음(First)에 위치시킨다 
-       *(InRoot$$Sections)	//ARM Library section 을 root section 에 자동 배치시킨다
-       .ANY (+RO)	//나머지 code 와 RO data 를 ROM에 위치시킨다
-    }
-    RW_IRAM1 0x20000000 0x00008000  //이건 RAM Section 이므로 위의 두개와 달리 SRAM 의 시작주소 0x20000000 를 사용
-    {  
-       .ANY (+RW +ZI)	//RW 와 ZI data section 을 RAM 에 위치시킨다
-    }
+  ER_IROM1 0x08000000 0x00008000      
+  {  
+    *.o(RESET, +First)	//*.o(RESET, +First)은 모든 .o 코드를 RESET Section 의 처음(First)에 위치시킨다 
+      *(InRoot$$Sections)	//ARM Library section 을 root section 에 자동 배치시킨다
+      .ANY (+RO)	//나머지 code 와 RO data 를 ROM에 위치시킨다
+  }
+  RW_IRAM1 0x20000000 0x00008000  //이건 RAM Section 이므로 위의 두개와 달리 SRAM 의 시작주소 0x20000000 를 사용
+  {  
+    .ANY (+RW +ZI)	//RW 와 ZI data section 을 RAM 에 위치시킨다
+  }
 }
 ```
 
