@@ -171,7 +171,7 @@ BR8, BR9, BR10, BR11 비트를 set하여 motor를 정지 시킨다.
 GPIOD->BSRR = GPIO_BSRR_BS2;
 ``` 
 
-###Library를 이용한 전체 Code
+### Library를 이용한 전체 Code
 
 ``` cpp
 //주어진 Library 를 include 시킨다
