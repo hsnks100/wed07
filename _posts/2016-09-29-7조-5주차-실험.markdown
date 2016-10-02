@@ -1,6 +1,6 @@
 ---
 layout: post
-author: ...
+author: 한성희, 이호욱, 한경수
 date: 2016-09-30 17:48 +0900
 tags: 
 comments: true
