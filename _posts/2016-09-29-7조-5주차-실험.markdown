@@ -128,7 +128,7 @@ GPIOC->CRH = (GPIO_CRH_MODE8 | GPIO_CRH_MODE9 | GPIO_CRH_MODE10 | GPIO_CRH_MODE1
 
 GPIOx_BSRR과 GPIOx_BRR은 다음과 같다.
 ![](../images/experiment02/GPIOC_BSRR.png)
-![](../images/experiment02/GPIOC_BRR.png)
+![](../images/experiment02/GPIOC_BRR.PNG)
 BS8, BS9, BS10, BS11 비트를 set, unset하여 motor를 회전을 조절하고
 BR8, BR9, BR10, BR11 비트를 set하여 motor를 정지 시킨다.
 
