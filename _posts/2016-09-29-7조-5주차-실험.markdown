@@ -112,8 +112,6 @@ Motor Driver와 Cortex 연결 모습.
 
 4주차 실험에서 사용한 조이스틱 제어에 따른 LED 불을 키는 code 에 motor 를 작동 시키는 조건을 추가한다. 
 
-...여기에 motor 작동 code 추가 및 설명...
-
 
 motor는 PC8, PC9, PC10, PC11을 사용한다.
 ![](../images/experiment02/GPIOC_CRH.PNG)
