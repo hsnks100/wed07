@@ -7,8 +7,11 @@ comments: true
 ---
 
 # 개요
-Scatter Loading File 작성 및 Flash Memory로의 Loading 을 통한 Flash Level 의 디버깅..
+Scatter Loading File 작성 및 Flash Memory로의 Loading 을 통한 Flash Level 의 디버깅.
+
 Flash Memory로 부터 Source를 가져와 Motor Driver 를 이용한 Motor 제어. 
+
+
 
 # 세팅
 
@@ -18,9 +21,13 @@ Flash Memory로 부터 Source를 가져와 Motor Driver 를 이용한 Motor 제�
 
 
 
+
+
 ![](../images/experiment02/setting.PNG)
 
 4주차 실험과 동일하게 세팅하되 RO,RW base address 부분의 값을 지우고 새로 Scatter file(--scatter) 부분에 주어진 Scatter 파일 위치 지정.
+
+
 
 
 
@@ -30,9 +37,13 @@ Debug Configuration의 Connection 탭에서 PSU의 Cortex-M3로 연결.
 
 
 
+
+
 ![](../images/experiment02/debugger2.png)
 
 File 탭의 해당 부분의 값을 지운다.
+
+
 
 
 
@@ -42,9 +53,13 @@ Debugger 탭의 Connect only 를 선택.
 
 
 
+
+
 ![](../images/experiment02/setting4.png)
 
 프로젝트 debug 후, Flash Load를 위해 Command 창에 "info flash" 명령어를 쳐서 flash memory의 설정을 확인.
+
+
 
 
 
@@ -66,9 +81,52 @@ Debugger 탭의 Connect only 를 선택.
 
 
 
+
 ![](../images/experiment02/connect_all.jpg)
 
 전체적인 기계 연결 모습
+
+
+
+
+#기본 개념
+
+##버튼 방식의 종류
+
+###1. Floating 방식
+
+플롯 상태란, 디지털 신호에는 1과 0으로 표현되지만 1도 아니고 0도 아닌 정해지지 않은 값이다.
+
+플로팅이란, 마치 0(Low) 과 1(High) 사이를 부유한 상태로 인위적인 전위를 설정하지 않은 것으로 이 경우 일반적인 스위치를 사용하면 값을 알 수 없다. 그래서 Pull-up, Pull-down으로 해결해야 한다. 
+
+ 
+###2. Pull Up 방식
+
+![](../images/experiment02/Pull_up.JPG)
+
+Pull up 방식은 회로에서 논리적으로 High-Level 상태를 유지하기 위해서 신호의 입력 또는 출력 단자와 사이에 접속하는 저항으로
+스위치가 닫혔을 때 : 0(Low)
+
+스위치가 열렸을 때 : 1(High) 
+
+값을 나타낸다. 
+
+Pull Up 방식은 Pull Down 방식보다 noise와 충격에 강해서 더 많이 사용된다. 
+
+
+
+###3. Pull Down 방식
+
+![](../images/experiment02/Pull_down.JPG)
+
+Pull Down 방식은 논리적으로 Low-Level 상태를 유지하기 위해서 신호의 입력 또는 출력 단자와 Ground 단자 사이를 접속하는 저항으로 
+스위치가 닫혔을 때 : 1(High)
+
+스위치가 열렸을 때 : 0(Low)
+
+값을 나타낸다. 
+
+이번 실험에서 우리는 Pull Down 방식을 사용한다. 
 
 # 구현
 
@@ -85,6 +143,9 @@ LED 불키기와 조이스틱 탐지에 대해서는 4주차 실험을 참조한
 
 
 
+
+
+
 ![](../images/experiment02/motor1.png)
 
 +12v power 에 (+) 전압을 인가하고, power GND 에 (-) 전압을 인가한다. 
@@ -94,9 +155,15 @@ Motor Driver 의 IN1, IN2, IN3, IN4 를 Cortex-M3 board 의 PC8, PC9, PC10, PC11
 
 
 
+
+
+
 ![](../images/experiment02/motor_board.jpg)
 
 Motor Driver와 Cortex 연결 모습.
+
+
+
 
 
 
@@ -107,21 +174,31 @@ Motor Driver와 Cortex 연결 모습.
 
 
 
+
+
 ### Motor 작동시키기
 
 4주차 실험에서 사용한 조이스틱 제어에 따른 LED 불을 키는 code 에 motor 를 작동 시키는 조건을 추가한다. 
 
 
 motor는 PC8, PC9, PC10, PC11을 사용한다.
+
 ![](../images/experiment02/GPIOC_CRH.PNG)
 위의 CRH 레지스터에서 PC8, PC9, PC10, PC11은 MODE8, CNF8부터 MODE11, CNF11까지 순서대로이다.
+
+
+
 
 ![](../images/experiment02/gpioc_crh_bitsetting.PNG)
 각 비트에 0x3의 값을 주어 Output mode, General purpose output push-pull로 설정 하였다.
 
+
+
+
 ```cpp
 GPIOC->CRH = (GPIO_CRH_MODE8 | GPIO_CRH_MODE9 | GPIO_CRH_MODE10 | GPIO_CRH_MODE11);
 ```
+
 
 GPIOx_BSRR과 GPIOx_BRR은 다음과 같다.
 ![](../images/experiment02/GPIOC_BSRR.PNG)
@@ -129,11 +206,18 @@ GPIOx_BSRR과 GPIOx_BRR은 다음과 같다.
 BS8, BS9, BS10, BS11 비트를 set, unset하여 motor를 회전을 조절하고
 BR8, BR9, BR10, BR11 비트를 set하여 motor를 정지 시킨다.
 
+
+
+
+
+
 ### motor 회전
  
 ```cpp
 GPIOC->BSRR = GPIO_BSRR_BS8 | GPIO_BSRR_BS9 | GPIO_BSRR_BS10 | GPIO_BSRR_BS11;
 ```
+
+
 
 
 ### motor 정지
@@ -150,6 +234,8 @@ GPIOD->BRR = GPIO_BRR_BR3;
 GPIOD->BRR = GPIO_BRR_BR4;
 GPIOD->BRR = GPIO_BRR_BR7;
 ```
+
+
 
 
 
@@ -291,6 +377,8 @@ int main() {
 SRAM 과 Flash Memory(ROM)의 Memory address 값
 
 
+
+
 ``` cpp
 //Datasheet를 참고하면, LR_IROM1 0x08000000 0x00008000 에서 뒤에 16 진수 중 첫 번째는 load section 의 시작주소, 두 번째는 section 의 크기를 말한다
 LR_IROM1 0x08000000 0x00008000  
@@ -308,11 +396,15 @@ LR_IROM1 0x08000000 0x00008000
 }
 ```
 
+
+
+
 ### Scatter file 이용 목적
 
 ![](../images/experiment02/scatter1.png)
 
 여러 개의 입력 section을 출력 section으로 "그룹화" 하고 memory map에 효율적으로 "배치"하기 위해서 사용한다. 
+
 
 
 
