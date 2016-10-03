@@ -7,8 +7,7 @@ comments: true
 ---
 
 # 개요
-Scatter Loading File 작성 및 Flash Memory로의 Loading 을 통한 Flash Level 의 디버깅.
-
+Scatter Loading File 작성 및 Flash Memory로의 Loading 을 통한 Flash Level 의 디버깅...
 Flash Memory로 부터 Source를 가져와 Motor Driver 를 이용한 Motor 제어. 
 
 
@@ -105,9 +104,13 @@ Debugger 탭의 Connect only 를 선택.
 ![](../images/experiment02/Pull_up.JPG)
 
 Pull up 방식은 회로에서 논리적으로 High-Level 상태를 유지하기 위해서 신호의 입력 또는 출력 단자와 사이에 접속하는 저항으로
+
+
 스위치가 닫혔을 때 : 0(Low)
 
 스위치가 열렸을 때 : 1(High) 
+
+
 
 값을 나타낸다. 
 
@@ -120,17 +123,24 @@ Pull Up 방식은 Pull Down 방식보다 noise와 충격에 강해서 더 많이
 ![](../images/experiment02/Pull_down.JPG)
 
 Pull Down 방식은 논리적으로 Low-Level 상태를 유지하기 위해서 신호의 입력 또는 출력 단자와 Ground 단자 사이를 접속하는 저항으로 
+
+
 스위치가 닫혔을 때 : 1(High)
 
 스위치가 열렸을 때 : 0(Low)
+
+
 
 값을 나타낸다. 
 
 이번 실험에서 우리는 Pull Down 방식을 사용한다. 
 
+
+
 # 구현
 
 LED 불키기와 조이스틱 탐지에 대해서는 4주차 실험을 참조한다. 
+
 
 
 ## Motor 
