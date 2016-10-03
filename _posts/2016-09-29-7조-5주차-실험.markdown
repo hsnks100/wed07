@@ -7,8 +7,7 @@ comments: true
 ---
 
 # 개요
-Scatter Loading File 작성 및 Flash Memory로의 Loading 을 통한 Flash Level 의 디버깅.
-
+Scatter Loading File 작성 및 Flash Memory로의 Loading 을 통한 Flash Level 의 디버깅..
 Flash Memory로 부터 Source를 가져와 Motor Driver 를 이용한 Motor 제어. 
 
 # 세팅
