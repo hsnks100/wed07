@@ -1,15 +1,10 @@
 ---
 layout: post
-date: 2016-09-22 02:01 +0900
-author: 한성희, 이호욱, 한경수
+author: ...
+date: 2016-09-30 17:48 +0900
 tags: 
+comments: true
 ---
-
-* 목차
-
-* table of contents
-{:toc} 
-
 # ARM DS-5 
 
 DStream 과 Cortex-M3 으로 하는 실험이다. DStream 엔 JTAG 라는 디버거가 있고, 플래시 다운로드가 있어서 Cortex-M3 이라는 cpu 로 전송이 가능하다. 또한 이 JTAG 를 통해서 실시간 디버깅이 가능하다.
@@ -74,6 +69,8 @@ int main(){
 ```
 
 Debug Configuration 에 들어가서 axf 파일을 지정한 뒤, Debug 를 누르면 플래시 다운로더가 axf 파일을 전송하면서 우리가 만든 프로그램이 ARM 보드 상에서 동작하게 된다.
+
+
 ![](../images/experiment01/dstream.png)
 
 # 구현
@@ -86,8 +83,10 @@ memory mapping에 사용될 memory map.
 
 각 register 별로 memory address 가 나타나 있다.
 
+
 ## GPIO Register 에 대해
 ![](../images/experiment01/registers.png)
+
 
 그림을 보면 GPIO x Register 에 대해 나타나 있는데, 각 CRL 부터 LCKR 까지 GPIO_BASE 주소로 부터 offset 을 가진다.
 
@@ -106,6 +105,7 @@ LCKR = 0x18
 앞으로 이 GPIO 의 원하는 목적에 따라 해당 register 를 set/unset 하면서 과제를 수행할 것이다.
 
 이 register 변수를 제어하기 위해서 간단한 비트연산의 지식이 필요하다.
+
 
 
 
@@ -160,6 +160,8 @@ if(data & (1 << 3)) // 3번째 bit 가 1인지 검사
 ```
 
 ![](../images/experiment01/porte.png)
+
+
 RCC_APB2ENR 에서 PORT 들을 enable 시켜줘야 사용이 가능한데,  위에서 표를 보면 PORTAEN, PORTBEN, PORTCEN, PORTDEN 에 해당된다.
 
 해당 비트를 2진수로 표현하면 0b0011 1100 인데 16진수로 표현하면 0x3C 가 된다.
@@ -174,6 +176,7 @@ RCC_APB2ENR 에서 PORT 들을 enable 시켜줘야 사용이 가능한데,  위�
 
 ## LED 에 불켜기
 ![](../images/experiment01/LED.jpg)
+
 LED 는 기본적으로 PortD 를 사용하여 동작시킬 수 있다.
 
 GPIOD_BSRR, GPIOD_CRL 두개의 레지스터에 값을 넣으면서 구현 가능하다.
@@ -218,6 +221,7 @@ int main(){
 
 ## 조이스틱 탐지
 ![](../images/experiment01/Joystick.jpg)
+
 조이스틱은 PortC 를 이용해서 탐지가 가능하다.
 
 GPIOC_IDR : input data register 를 이용해서 탐지한다.
@@ -269,13 +273,18 @@ void onAll()
 }
 
 ```
+
+
 동작된 그림은 다음과 같다.
 
 ![](../images/experiment01/real1.jpg)
 
 
+
 ## S1, S2 버튼 탐지
 ![](../images/experiment01/Button.jpg)
+
+
 
 ``` cpp
 CRL = 0x00
@@ -290,12 +299,14 @@ LCKR = 0x18
 버튼은 PORTD 를 이용해서 탐지가 가능하다. 좀더 자세히 쓰면 PORTD_IDR 을 통해서 탐지가 가능하다. 좀 전 LED 를 제어할 때도 PORTD 를 썼는데, 입력을 받을 때도 같은 PORT 를 쓰는게 가능하다. 
 출력할 땐 PORTD_CNF, PORTD_BSRR 을 썼고, 입력을 받을 땐 PORTD_IDR 을 쓴다.
 
+
 ``` cpp
 // S1 가 눌러졌을 땐 
 0b0000 x000 0000 0000
 // S2 가 눌러졌을 땐 
 0b000x 0000 0000 0000
 ```
+
 위의 x 인 부분이 해당 버튼이 눌러졌을 때 0으로 바뀐다. 
 이를 탐지하는 코드를 쓰면 다음과 같다.
 
@@ -314,6 +325,8 @@ while ( !(((*(volatile unsigned *)0x40011408) & 0x1000) >> 12) ) {
   on1(); delay();
 }
 ```
+
+
 
 
 
