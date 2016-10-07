@@ -59,3 +59,284 @@ GND 는 공유되어있기 때문에 확장포트의 아무곳이나 프로브�
 # 결론
 
 
+
+
+# 전체 소스
+``` cpp 
+#include "stm32f10x_gpio.h"
+#include "stm32f10x.h"
+#include "stm32f10x_usart.h"
+#include <vector>
+#include <string>
+using namespace std;
+#define STM32F10X_CL
+
+void delay(){
+  for(int i = 0; i < 1000000; i++);
+}
+
+void SysInit(void) {
+  /* Set HSION bit */
+  /* Internal Clock Enable */
+  RCC->CR |= (uint32_t) 0x00000001;
+
+
+  /* Reset SW, HPRE, PPRE1, PPRE2, ADCPRE and MCO bits */
+  RCC->CFGR &= (uint32_t) 0xF0FF0000;
+
+  /* Reset HSEON, CSSON and PLLON bits */
+  RCC->CR &= (uint32_t) 0xFEF6FFFF;
+
+  /* Reset HSEBYP bit */
+  RCC->CR &= (uint32_t) 0xFFFBFFFF;
+
+  /* Reset PLLSRC, PLLXTPRE, PLLMUL and USBPRE/OTGFSPRE bits */
+  RCC->CFGR &= (uint32_t) 0xFF80FFFF;
+
+  /* Reset PLL2ON and PLL3ON bits */
+  RCC->CR &= (uint32_t) 0xEBFFFFFF;
+
+  /* Disable all interrupts and clear pending bits  */
+  RCC->CIR = 0x00FF0000;
+
+  /* Reset CFGR2 register */
+  RCC->CFGR2 = 0x00000000;
+}
+
+void SetSysClock(void)
+{
+  volatile uint32_t StartUpCounter = 0, HSEStatus = 0;
+
+  /* SYSCLK, HCLK, PCLK2 and PCLK1 configuration ---------------------------*/
+  /* Enable HSE */
+  RCC->CR |= ((uint32_t)RCC_CR_HSEON);
+
+  /* Wait till HSE is ready and if Time out is reached exit */
+  do
+  {
+    HSEStatus = RCC->CR & RCC_CR_HSERDY;
+    StartUpCounter++;
+  } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+
+  if ((RCC->CR & RCC_CR_HSERDY) != RESET)
+  {
+    HSEStatus = (uint32_t)0x01;
+  }
+  else
+  {
+    HSEStatus = (uint32_t)0x00;
+  }
+
+  if (HSEStatus == (uint32_t)0x01)
+  {
+    /* Enable Prefetch Buffer */
+    FLASH->ACR |= FLASH_ACR_PRFTBE;
+
+    /* Flash 0 wait state */
+    FLASH->ACR &= (uint32_t)((uint32_t)~FLASH_ACR_LATENCY);
+    FLASH->ACR |= (uint32_t)FLASH_ACR_LATENCY_0;
+
+    /* HCLK = SYSCLK */
+    RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV2;
+
+    /* PCLK2 = HCLK */
+    RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV2;
+
+    /* PCLK1 = HCLK */
+    RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV1;
+
+    /* Configure PLLs ------------------------------------------------------*/
+    /* PLL configuration: PLLCLK = ???? */
+    // HSE = 25, PREDIV1_div2 : /2 , PLLMULL4: *4
+    RCC->CFGR &= (uint32_t)~(RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLSRC | RCC_CFGR_PLLMULL);
+    RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLXTPRE_PREDIV1 | RCC_CFGR_PLLSRC_PREDIV1 |
+        RCC_CFGR_PLLMULL4);
+
+    /* PLL2 configuration: PLL2CLK = ???? */
+    /* PREDIV1 configuration: PREDIV1CLK = ???? */
+    // HSE, MUL_0,
+    RCC->CFGR2 &= (uint32_t)~(RCC_CFGR2_PREDIV2 | RCC_CFGR2_PLL2MUL |
+        RCC_CFGR2_PREDIV1 | RCC_CFGR2_PREDIV1SRC);
+    RCC->CFGR2 |= (uint32_t)(RCC_CFGR2_PREDIV2_DIV5 | RCC_CFGR2_PLL2MUL12 |
+        RCC_CFGR2_PREDIV1SRC_PLL2  | RCC_CFGR2_PREDIV1_DIV5);
+
+    /* Enable PLL2 */
+    RCC->CR |= RCC_CR_PLL2ON;
+    /* Wait till PLL2 is ready */
+    while((RCC->CR & RCC_CR_PLL2RDY) == 0)
+    {
+    }
+
+    /* Enable PLL */
+    RCC->CR |= RCC_CR_PLLON;
+
+    /* Wait till PLL is ready */
+    while((RCC->CR & RCC_CR_PLLRDY) == 0)
+    {
+    }
+
+    /* Select PLL as system clock source */
+    RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+    RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;
+    RCC->CFGR |= (uint32_t)RCC_CFGR_MCO_2;
+
+    /* Wait till PLL is used as system clock source */
+    while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)0x08)
+    {
+    }
+  }
+  else
+  { /* If HSE fails to start-up, the application will have wrong clock
+       configuration. User can add here some code to deal with this error */
+  }
+}
+
+void UartInit(void) {
+  /*---------------------------- RCC Configuration -----------------------------*/
+  /* GPIO RCC Enable  */
+  /* USART RCC Enable */
+  RCC->APB2ENR |= RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN;
+  RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+
+  /* USART Pin Configuration */
+  GPIOA->CRH = (GPIO_CRH_MODE8 | GPIO_CRH_CNF8_1 | GPIO_CRH_MODE9 | GPIO_CRH_CNF9_1);
+
+  /*---------------------------- USART CR2 Configuration -----------------------*/
+  /* Clear STOP[13:12] bits */
+
+  /* Configure the USART Stop Bits, Clock, CPOL, CPHA and LastBit ------------*/
+  /* Set STOP[13:12] bits according to USART_StopBits value */
+  USART1->CR2 &= ~(USART_CR2_STOP | USART_CR2_CPOL | USART_CR2_CPHA);
+
+
+  /*---------------------------- USART CR1 Configuration -----------------------*/
+  /* Clear M, PCE, PS, TE and RE bits */
+  USART1->CR1 &= ~(USART_CR1_M | USART_CR1_PCE | USART_CR1_PS | USART_CR1_TE | USART_CR1_RE);
+
+  /* Configure the USART Word Length, Parity and mode ----------------------- */
+  /* Set the M bits according to USART_WordLength value */
+  /* Set PCE and PS bits according to USART_Parity value */
+  /* Set TE and RE bits according to USART_Mode value */
+  USART1->CR1 |= (USART_CR1_RE | USART_CR1_TE);
+
+
+  /*---------------------------- USART CR3 Configuration -----------------------*/
+  /* Clear CTSE and RTSE bits */
+  USART1->CR3 &= ~(USART_CR3_CTSE | USART_CR3_RTSE);
+
+  /* Configure the USART HFC -------------------------------------------------*/
+  /* Set CTSE and RTSE bits according to USART_HardwareFlowControl value */
+
+  /* Write to USART CR3 */
+
+
+  /*---------------------------- USART BRR Configuration -----------------------*/
+  /* Configure the USART Baud Rate -------------------------------------------*/
+  /* Determine the integer part */
+  /* Determine the fractional part */
+  USART1->BRR = 0xd0;
+  /*---------------------------- USART Enable ----------------------------------*/
+  /* USART Enable Configuration */
+  USART1->CR1 |= USART_CR1_UE;
+  /*---------------------------- USART DATA output -----------------------------*/
+  /* USART DATA Transmission */
+}
+
+void SendData(int data){
+  while(!(USART1->SR&USART_SR_TXE));
+  USART1->DR = data & 0xFF;
+
+  //µ¥ÀÌÅÍ¸¦ ´Ù º¸³»´Â °ÍÀ» ±â´Ù¸°´Ù
+  //	while(!USART1->SR | !USART_SR_TXE));
+}
+
+
+
+int main() {
+  RCC->APB2ENR = (RCC_APB2ENR_IOPAEN | RCC_APB2ENR_AFIOEN); //0x3c;
+  GPIOA->CRH = GPIO_CRH_MODE8 | GPIO_CRH_CNF8_1;
+  GPIOC->CRH = (GPIO_CRH_MODE8 | GPIO_CRH_MODE9 | GPIO_CRH_MODE10 | GPIO_CRH_MODE11);
+  GPIOC->IDR = 0x00000000;
+
+  SysInit();
+  SetSysClock();
+  UartInit();
+
+
+  /*---------------------------- USART DATA output -----------------------------*/
+  //	char* names[] = {"hks", "lhw", "hsh"};
+
+  int count = 0;
+  while (1) {
+    //		if((~GPIOC->IDR & (GPIO_IDR_IDR2) ) ){
+    //			for(int i=0; i<strlen(names[count]); i++){
+    //				SendData(names[count][i]);
+    //			}
+    //			delay();
+    //			count++;
+    //
+    //			if(count >= 3){
+    //				count = 0;
+    //			}
+    //		}
+
+    if((~GPIOC->IDR & (GPIO_IDR_IDR2)) && count == 0){
+      SendData('W');
+      SendData('e');
+      SendData('d');
+      SendData('T');
+      SendData('e');
+      SendData('a');
+      SendData('m');
+      SendData('7');
+      SendData(' ');
+      SendData('H');
+      SendData('K');
+      SendData('S');
+      SendData(' ');
+
+      delay();
+      count = (count+1)%3;
+    }
+
+    if((~GPIOC->IDR & (GPIO_IDR_IDR2)) && count == 1){
+      SendData('W');
+      SendData('e');
+      SendData('d');
+      SendData('T');
+      SendData('e');
+      SendData('a');
+      SendData('m');
+      SendData('7');
+      SendData(' ');
+      SendData('H');
+      SendData('H');
+      SendData('H');
+      SendData(' ');
+
+      delay();
+      count = (count+1)%3;
+    }
+
+    if((~GPIOC->IDR & (GPIO_IDR_IDR2)) && count == 2){
+      GPIOD->BSRR = GPIO_BSRR_BS2;
+      SendData('W');
+      SendData('e');
+      SendData('d');
+      SendData('T');
+      SendData('e');
+      SendData('a');
+      SendData('m');
+      SendData('7');
+      SendData(' ');
+      SendData('L');
+      SendData('H');
+      SendData('W');
+      SendData(' ');
+
+      delay();
+      count = (count+1)%3;
+    }
+  }
+}
+```
