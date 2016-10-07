@@ -13,11 +13,17 @@ comments: true
 
 이 과정에서 오실로스코프 파형 관찰을 통한 전자적 신호에 대한 디버깅도 배울 수 있다.  
 
+
+
+
 # 세팅
 
 ## eclipse
 이전의 실험에서 rvc 나 기타 db 는 이미 생성되었다고 가정하고, eclipse 에서 추가적으로 stm32 에 대한 library 를 include 에 넣어놓는다.
 scatter 를 이용한 방식이 아닌 첫 실험때 사용한 방식으로 flash load 를 시킨다. 
+
+
+
 
 
 ## 오실로스코프
@@ -28,6 +34,10 @@ GND 는 공유되어있기 때문에 확장포트의 아무곳이나 프로브�
 [그림]
 그림과 같이 ch1 으로 파형을 관찰한다.
 
+
+
+
+
 ## RS-232C
 
 ![](../images/experiment03/RS_232C_PORT.jpg)
@@ -35,8 +45,6 @@ GND 는 공유되어있기 때문에 확장포트의 아무곳이나 프로브�
 위 그림과 같은 RS-232C 포트는 양방향 통신이 가능하며 각 단말에 TX, RX 가 쌍으로 있다. 그래서 한쪽에서 보내는것도 가능하고, 받는것도 가능하다. (1:1 통신만 가능하다.)
 컴퓨터와 기기와 RS-232C 를 연결하면 컴퓨터의 장치관리자에 보면 COM port 가 추가로 잡힌모습을 볼 수 있는데, 만약 com port 의 번호가 우리가 원하지 않는 번호로 잡혀있다면 com port 수정을 해줄 수 있다. 
 터미널프로그램이 높은 번호의 com port 는 인지 못하는 경향이 있으니 꼭 체크한다.  
-
-
 
 
 
@@ -50,7 +58,13 @@ GND 는 공유되어있기 때문에 확장포트의 아무곳이나 프로브�
 
 #기본 개념 
 
+
 ##동기식 / 비동기식 통신
+
+
+
+
+
 
 ###동기식 통신
 ![](../images/experiment03/syn.jpg)
@@ -58,6 +72,11 @@ GND 는 공유되어있기 때문에 확장포트의 아무곳이나 프로브�
 동기식 통신은 그림과 같이 데이터와는 별도로 송/수신 측이 하나의 기준 클럭으로 동기신호를 맞춰 동작한다. 수신측에서 클럭에 의해 비트를 구별하기 때문에 데이터와 클럭을 위한 2회선을 필요로 한다. 
 
 미리 정해진 수 만큼의 문자열을 한 묶음(블록 단위) 으로 하여 동시에 전송할 수 있다. 그래서 동기식은 고속 통신이다. 
+
+
+
+
+
 
 
 
@@ -71,11 +90,20 @@ GND 는 공유되어있기 때문에 확장포트의 아무곳이나 프로브�
 
 
 
+
+
+
+
 ##시리얼 통신
+
 
 ###시리얼 통신
 
 시리얼 통신이란, 데이터를 직렬 형태로 한 bit 씩 전송하는 통신을 말한다. 
+
+
+
+
 
 
 ###비동기식 시리얼 통신
@@ -94,8 +122,12 @@ GND 는 공유되어있기 때문에 확장포트의 아무곳이나 프로브�
 
 
 
-##UART 와 USART
 
+
+
+
+
+##UART 와 USART
 
 
 ###UART
@@ -111,11 +143,17 @@ UART(Universal Asynchronous Receiver/Transmitter) 는 범용 비동기화 송수
 
 
 
+
+
+
+
 ###USART
 
 USART(Universal Syn/Asynchronous Receiver/Transmitter) 는 범용 동기화 송수신기로 
 
 동기화 통신까지 지원하는 UART이다. 
+
+
 
 
 
@@ -170,7 +208,8 @@ PLL은 HSI 와 HSE 를 곱하거나 나누어서 원하는 주파수 값을 만�
 
 
 
-#####System Clock
+
+- System Clock
 
 
 ![](../images/experiment03/sysclk.JPG)
@@ -180,7 +219,8 @@ Clock Tree 중 SYSCLK 값은 Oscillator 에서 나오는 HSE clock 또는 내부
 
 
 
-#####Clock 이용
+
+- Clock 이용
 
 ![](../images/experiment03/clock.JPG)
 
@@ -194,13 +234,16 @@ Clock Tree 중 SYSCLK 값은 Oscillator 에서 나오는 HSE clock 또는 내부
 
 
 
-#####MCO
+- MCO
 
 ![](../images/experiment03/mco.jpg)
 
 MCO(Microcontroller Clock Output) 이란, 보드 내부에서 사용되는 clock 을 외부로 출력하는 기능을 담당한다. 
 
 Oscilloscope 와 연결하여 clock 설정이 정상적인지 확인할 수 있고 어떤 내부 clock 을 외부로 출력할지 결정한다. 
+
+
+
 
 
 
