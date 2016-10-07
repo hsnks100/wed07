@@ -30,7 +30,7 @@ GND 는 공유되어있기 때문에 확장포트의 아무곳이나 프로브�
 
 ## RS-232C
 
-![](../images/experiment03/RS_232C_PORT.JPG)
+![](../images/experiment03/RS_232C_PORT.jpg)
 
 위 그림과 같은 RS-232C 포트는 양방향 통신이 가능하며 각 단말에 TX, RX 가 쌍으로 있다. 그래서 한쪽에서 보내는것도 가능하고, 받는것도 가능하다. (1:1 통신만 가능하다.)
 컴퓨터와 기기와 RS-232C 를 연결하면 컴퓨터의 장치관리자에 보면 COM port 가 추가로 잡힌모습을 볼 수 있는데, 만약 com port 의 번호가 우리가 원하지 않는 번호로 잡혀있다면 com port 수정을 해줄 수 있다. 
@@ -41,7 +41,8 @@ GND 는 공유되어있기 때문에 확장포트의 아무곳이나 프로브�
 
 
 
-![](../images/experiment03/board2.JPG)
+![](../images/experiment03/board2.jpg)
+
 전체적인 기계 연결 모습
 
 
@@ -99,7 +100,7 @@ GND 는 공유되어있기 때문에 확장포트의 아무곳이나 프로브�
 
 ###UART
 
-![](../images/experiment03/uart.JPG)
+![](../images/experiment03/uart.jpg)
 
 
 UART(Universal Asynchronous Receiver/Transmitter) 는 범용 비동기화 송수신기로 
@@ -121,18 +122,18 @@ USART(Universal Syn/Asynchronous Receiver/Transmitter) 는 범용 동기화 송�
 
 ####USART 흐름
 
-![](../images/experiment03/usart_flow.JPG)
+![](../images/experiment03/usart_flow.jpg)
 
 그림에서 CR1, 2, 3 을 이용하여 통신 설정을 변경할 수 있다. Baud rate 를 설정하여 BRR 값을 구한다. 
 
 
 Baud rate 를 구하는 식은 다음과 같다. 
-![](../images/experiment03/baudrate.JPG)
+![](../images/experiment03/baudrate.jpg)
 
 
 ####USART 데이터 송/수신간
 
-![](../images/experiment03/usart_data.JPG)
+![](../images/experiment03/usart_data.jpg)
 
 - Start bits : 통신의 시작을 의미하는 것으로 0으로 설정된다. 
 
@@ -158,7 +159,7 @@ STM32 MCU 의 clock 은 SYSCLK 으로 나타나 있는 system clock 을 기반�
 
 
 
-![](../images/experiment03/clock_tree.JPG)
+![](../images/experiment03/clock_tree.jpg)
 
 Clock 의 이동 경로를 보여주는 Clock Tree 이다.
 
@@ -168,7 +169,7 @@ PLL은 HSI 와 HSE 를 곱하거나 나누어서 원하는 주파수 값을 만�
 
 
 
-![](../images/experiment03/sysclk.JPG)
+![](../images/experiment03/sysclk.jpg)
 
 Clock Tree 중 SYSCLK 값을 빨간 네모 속의 값들(HSI, HSE, PLL) 의 계산으로 구한다. 
 
