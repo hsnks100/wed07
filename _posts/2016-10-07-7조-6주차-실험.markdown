@@ -183,9 +183,7 @@ Clock Tree 중 SYSCLK 값은 Oscillator 에서 나오는 HSE clock 또는 내부
 
 - HCLK : AHB 버스에 사용되는 Clock 으로 memroy controller, interrupt controller 등에 사용된다. 
 
-- PCLK : APB 버스에 사용되는 Clock 으로 GPIO, UART, SPI 등에 사용된다. 
-
-\\
+- PCLK : APB 버스에 사용되는 Clock 으로 GPIO, UART, SPI 등에 사용된다.  \\
 
 3. MCO
 
@@ -193,9 +191,7 @@ Clock Tree 중 SYSCLK 값은 Oscillator 에서 나오는 HSE clock 또는 내부
 
 MCO(Microcontroller Clock Output) 이란, 보드 내부에서 사용되는 clock 을 외부로 출력하는 기능을 담당한다. 
 
-Oscilloscope 와 연결하여 clock 설정이 정상적인지 확인할 수 있고 어떤 내부 clock 을 외부로 출력할지 결정한다. 
-
-\\
+Oscilloscope 와 연결하여 clock 설정이 정상적인지 확인할 수 있고 어떤 내부 clock 을 외부로 출력할지 결정한다. \\
 
 # 구현 
 
