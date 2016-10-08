@@ -26,8 +26,7 @@ scatter 를 이용한 방식이 아닌 첫 실험때 사용한 방식으로 flas
 
 <br>
 
-## UART 통신 케이블
-
+## UART 통신 케이블 
 ![](images/experiment03/uart_cable.JPG)  
 
 UART 통신을 위해 보드와 PC 를 케이블로 연결한다. 통신 전 "PL2303_Prolific_DriverInstaller_v130" 을 설치한다.
@@ -35,15 +34,13 @@ UART 통신을 위해 보드와 PC 를 케이블로 연결한다. 통신 전 "PL
 
 <br> 
 
-## 오실로스코프
-
+## 오실로스코프 
 먼저 커플링 DC 를 선택한다. 그리고 프로브를 보드 확장 포트의 GND 에 연결하고, 나머지 하나의 연결 고리를  우리가 측정하고자 하는 port 에 접촉시킨다.
 GND 는 공유되어있기 때문에 확장포트의 아무곳이나 프로브로 집으면 되고, PortA8, PortA9, PorA10 중에 하나에 연결하여 원하는 전압을 측정하면 된다.
 
 <br>
 
-## RS-232C
-
+## RS-232C 
 ![](../images/experiment03/RS_232C_PORT.jpg)
 
 위 그림과 같은 RS-232C 포트는 양방향 통신이 가능하며 각 단말에 TX, RX 가 쌍으로 있다. 그래서 한쪽에서 보내는것도 가능하고, 받는것도 가능하다. (1:1 통신만 가능하다.)
@@ -54,14 +51,11 @@ GND 는 공유되어있기 때문에 확장포트의 아무곳이나 프로브�
 
 USART 통신에 맞게 port를 연결하고 모드를 설정한다. MCO, TX, RX 에 해당하는 PA8, PA9, PA10에 연결한다. 
 
-<br>
-<br> 
 ![](../images/experiment03/board2.jpg)
 
 전체적인 기계 연결 모습
 
-<br>
-<br>  
+
 # 기본 개념 
   
 ## 동기식 / 비동기식 통신
@@ -73,7 +67,7 @@ USART 통신에 맞게 port를 연결하고 모드를 설정한다. MCO, TX, RX 
 
 미리 정해진 수 만큼의 문자열을 한 묶음(블록 단위) 으로 하여 동시에 전송할 수 있다. 그래서 동기식은 고속 통신이다. 
 
-<br> 
+
 ### 비동기식 통신
 ![](../images/experiment03/asyn.jpg)
 
@@ -81,17 +75,14 @@ USART 통신에 맞게 port를 연결하고 모드를 설정한다. MCO, TX, RX 
 
 한번에 한 문자씩 송/수신할 수 있다. 그래서 비동기식은 저속 통신이다. 
 
-<br>  
-## 시리얼 통신
-  
-  
-  
+
+## 시리얼 통신 
   
 ### 시리얼 통신
 
 시리얼 통신이란, 데이터를 직렬 형태로 한 bit 씩 전송하는 통신을 말한다. 
 
-<br>  
+
 ### 비동기식 시리얼 통신
 
 비동기식 시리얼 통신이란, 데이터가 외부 클럭 신호 도움 없이 몇 가지 규칙에 기반해 동작하는 통신을 말한다. 
@@ -104,7 +95,7 @@ USART 통신에 맞게 port를 연결하고 모드를 설정한다. MCO, TX, RX 
 
 - Baud rate : 시리얼 라인으로 전송되는 데이터 속도(bps), 보통 115200을 상한선으로 사용한다.  
   
-<br> 
+
 ## UART 와 USART
  
 ### UART
@@ -118,14 +109,12 @@ UART(Universal Asynchronous Receiver/Transmitter) 는 범용 비동기화 송수
 
 시리얼 기반 통식 방식으로 보통 RS_232 를 통해 통신을 지원한다. 
  
-<br>  
 ### USART
 
 USART(Universal Syn/Asynchronous Receiver/Transmitter) 는 범용 동기화 송수신기로 
 
 동기화 통신까지 지원하는 UART이다. 
 
-<br>  
 #### USART 흐름
 
 ![](../images/experiment03/usart_flow.jpg)
@@ -136,7 +125,6 @@ USART(Universal Syn/Asynchronous Receiver/Transmitter) 는 범용 동기화 송�
 Baud rate 를 구하는 식은 다음과 같다. 
 ![](../images/experiment03/baudrate.jpg)
 
-<br>  
 #### USART 데이터 송/수신간
 
 ![](../images/experiment03/usart_data.jpg)
@@ -149,7 +137,6 @@ Baud rate 를 구하는 식은 다음과 같다.
 
 - Stop bits : 통신 종료를 의미하는 것으로 레지스터 설정에 따라 비트 수가 나뉜다. 
   
-<br> 
 ### Clock
 
 STM32 MCU 의 clock 은 SYSCLK 으로 나타나 있는 system clock 을 기반으로 결정된다. 
@@ -159,9 +146,8 @@ STM32 MCU 의 clock 은 SYSCLK 으로 나타나 있는 system clock 을 기반�
 1. HSE clock : Cortex-M3 보드의 Oscillator 에서 방생되는 clock으로 25Mhz 의 값을 가진다. 
 
 2. HSI clock : 보드의 내부 클락으로 8Mhz 의 값을 가진다. 
-
-<br>
-<br>  
+..
+..
 #### Clock Tree
 
 
@@ -173,7 +159,8 @@ Tree를 보면, SYSCLK(System Clock) 은 HSI, HSE, PLL 의 출력 중 하나를 
 
 PLL은 HSI 와 HSE 를 곱하거나 나누어서 원하는 주파수 값을 만들 수 있다.     
 
-<br>  
+..
+
 1. System Clock
 
 
@@ -181,7 +168,7 @@ PLL은 HSI 와 HSE 를 곱하거나 나누어서 원하는 주파수 값을 만�
 
 Clock Tree 중 SYSCLK 값은 Oscillator 에서 나오는 HSE clock 또는 내부 HSI clock 을 PLL로 변환하여 결정할 수 있다.
   
-<br>
+..
 2. Clock 이용
 
 ![](../images/experiment03/clock.JPG)
@@ -194,7 +181,7 @@ Clock Tree 중 SYSCLK 값은 Oscillator 에서 나오는 HSE clock 또는 내부
 
 - PCLK : APB 버스에 사용되는 Clock 으로 GPIO, UART, SPI 등에 사용된다. 
 
-<br>  
+..
 3. MCO
 
 ![](../images/experiment03/mco.jpg)
@@ -203,8 +190,8 @@ MCO(Microcontroller Clock Output) 이란, 보드 내부에서 사용되는 clock
 
 Oscilloscope 와 연결하여 clock 설정이 정상적인지 확인할 수 있고 어떤 내부 clock 을 외부로 출력할지 결정한다. 
 
-<br>
-<br>
+..
+..
 
 # 구현 
 
@@ -220,13 +207,14 @@ RCC_CR 로 HSI 를 enable, HSE 와 PLL 을 OFF 시키는 것으로 초기화.
 
 RCC_CFGR 로 MCO 가 clock을 받지 않고 HSI 가 SYSCLK 가 되도록 초기화한다. 또, 각각의 레지스터가 곱하거나 나누는 동작을 하지 않도록 초기화한다.
 
-<br>
+..
 ![](../images/experiment03/sysinit.JPG) 
 
 초기화 시킨 코드
 
-<br>
-<br>
+..
+..
+
 ## Clock 값 설정
 
 이번 실험에서 주어진 Clock 값은 다음과 같다. 
@@ -296,6 +284,7 @@ SYSCLK 값이 48MHz 임으로 먼저 AHB precalar 를 통해 /2 연산을 해준
 
 <br>
 <br>
+
 ## USART 사용
 
 ``` cpp
@@ -377,42 +366,9 @@ terminal 을 통해 확인한 결과.
 <br>
 <br>
 <br>
+
 # 결론
 
-
-def detail_replace(detail):
-    result = []
-    for key,val in detail.items():
-        if key == 'user':
-            temp_val = val.split(",")
-            val_arr = []
-            for temp_user in temp_val:
-                val_arr.append('<a href="mailto:%s@hawaii.edu">%s</a>' %(temp_user,temp_user))
-            detail[key] = ", ".join(val_arr)
-
-        if '=' in val:
-            if "http://" in val or "https://" in val:
-                detail[key] = '<a href="%s" target="_blank">Open</a>'
-            else:
-                temp = val.split(",")
-                temp_arr_1 = []
-                for each in temp:
-                    temp_arr_2 = each.split("=")
-
-                    if temp_arr_2[0] == "S":
-                        temp_arr_2[0] = "Sent"
-                    elif temp_arr_2[0] == "R":
-                        temp_arr_2[0] = "Received"
-                    elif temp_arr_2[0] == "ErrIn":
-                        temp_arr_2[0] = "Error-In"
-                    elif temp_arr_2[0] == "ErrOut":
-                        temp_arr_2[0] = "Error-Out"
-                    elif temp_arr_2[0] == "T":
-                        temp_arr_2[0] = "Total"
-                    elif temp_arr_2[0] == "F":
-                        temp_arr_2[0] = "Free"
-                    else:
-                        temp_arr_2[0] = temp_arr_2[0]
 
 # 전체 소스
 ``` cpp 
