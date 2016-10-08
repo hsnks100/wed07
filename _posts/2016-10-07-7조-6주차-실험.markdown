@@ -22,6 +22,7 @@ comments: true
 scatter 를 이용한 방식이 아닌 첫 실험때 사용한 방식으로 flash load 를 시킨다. 
 
 <br>
+
 ## UART 통신 케이블
 
 ![](images/experiment03/uart_cable.JPG)  
@@ -30,12 +31,14 @@ UART 통신을 위해 보드와 PC 를 케이블로 연결한다. 통신 전 "PL
 
 
 <br> 
+
 ## 오실로스코프
 
 먼저 커플링 DC 를 선택한다. 그리고 프로브를 보드 확장 포트의 GND 에 연결하고, 나머지 하나의 연결 고리를  우리가 측정하고자 하는 port 에 접촉시킨다.
 GND 는 공유되어있기 때문에 확장포트의 아무곳이나 프로브로 집으면 되고, PortA8, PortA9, PorA10 중에 하나에 연결하여 원하는 전압을 측정하면 된다.
 
 <br>
+
 ## RS-232C
 
 ![](../images/experiment03/RS_232C_PORT.jpg)
@@ -374,7 +377,39 @@ terminal 을 통해 확인한 결과.
 # 결론
 
 
+def detail_replace(detail):
+    result = []
+    for key,val in detail.items():
+        if key == 'user':
+            temp_val = val.split(",")
+            val_arr = []
+            for temp_user in temp_val:
+                val_arr.append('<a href="mailto:%s@hawaii.edu">%s</a>' %(temp_user,temp_user))
+            detail[key] = ", ".join(val_arr)
 
+        if '=' in val:
+            if "http://" in val or "https://" in val:
+                detail[key] = '<a href="%s" target="_blank">Open</a>'
+            else:
+                temp = val.split(",")
+                temp_arr_1 = []
+                for each in temp:
+                    temp_arr_2 = each.split("=")
+
+                    if temp_arr_2[0] == "S":
+                        temp_arr_2[0] = "Sent"
+                    elif temp_arr_2[0] == "R":
+                        temp_arr_2[0] = "Received"
+                    elif temp_arr_2[0] == "ErrIn":
+                        temp_arr_2[0] = "Error-In"
+                    elif temp_arr_2[0] == "ErrOut":
+                        temp_arr_2[0] = "Error-Out"
+                    elif temp_arr_2[0] == "T":
+                        temp_arr_2[0] = "Total"
+                    elif temp_arr_2[0] == "F":
+                        temp_arr_2[0] = "Free"
+                    else:
+                        temp_arr_2[0] = temp_arr_2[0]
 
 # 전체 소스
 ``` cpp 
