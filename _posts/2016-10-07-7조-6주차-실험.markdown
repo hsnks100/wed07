@@ -148,6 +148,7 @@ STM32 MCU 의 clock 은 SYSCLK 으로 나타나 있는 system clock 을 기반�
 2. HSI clock : 보드의 내부 클락으로 8Mhz 의 값을 가진다. 
 
 \\
+
 \\
 
 #### Clock Tree
@@ -171,6 +172,7 @@ PLL은 HSI 와 HSE 를 곱하거나 나누어서 원하는 주파수 값을 만�
 Clock Tree 중 SYSCLK 값은 Oscillator 에서 나오는 HSE clock 또는 내부 HSI clock 을 PLL로 변환하여 결정할 수 있다.
   
 \\
+
 2. Clock 이용
 
 ![](../images/experiment03/clock.JPG)
@@ -184,6 +186,7 @@ Clock Tree 중 SYSCLK 값은 Oscillator 에서 나오는 HSE clock 또는 내부
 - PCLK : APB 버스에 사용되는 Clock 으로 GPIO, UART, SPI 등에 사용된다. 
 
 \\
+
 3. MCO
 
 ![](../images/experiment03/mco.jpg)
@@ -192,7 +195,6 @@ MCO(Microcontroller Clock Output) 이란, 보드 내부에서 사용되는 clock
 
 Oscilloscope 와 연결하여 clock 설정이 정상적인지 확인할 수 있고 어떤 내부 clock 을 외부로 출력할지 결정한다. 
 
-\\
 \\
 
 # 구현 
