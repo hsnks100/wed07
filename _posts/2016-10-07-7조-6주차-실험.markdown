@@ -63,6 +63,7 @@ USART 통신에 맞게 port를 연결하고 모드를 설정한다. MCO, TX, RX 
 <br>
 <br>
 <br>
+
 # 기본 개념 
   
 ## 동기식 / 비동기식 통신
@@ -75,6 +76,7 @@ USART 통신에 맞게 port를 연결하고 모드를 설정한다. MCO, TX, RX 
 미리 정해진 수 만큼의 문자열을 한 묶음(블록 단위) 으로 하여 동시에 전송할 수 있다. 그래서 동기식은 고속 통신이다. 
 
 <br>
+
 ### 비동기식 통신
 ![](../images/experiment03/asyn.jpg)
 
@@ -83,6 +85,7 @@ USART 통신에 맞게 port를 연결하고 모드를 설정한다. MCO, TX, RX 
 한번에 한 문자씩 송/수신할 수 있다. 그래서 비동기식은 저속 통신이다. 
 
 <br>
+
 ## 시리얼 통신 
   
 ### 시리얼 통신
@@ -90,6 +93,7 @@ USART 통신에 맞게 port를 연결하고 모드를 설정한다. MCO, TX, RX 
 시리얼 통신이란, 데이터를 직렬 형태로 한 bit 씩 전송하는 통신을 말한다. 
 
 <br>
+
 ### 비동기식 시리얼 통신
 
 비동기식 시리얼 통신이란, 데이터가 외부 클럭 신호 도움 없이 몇 가지 규칙에 기반해 동작하는 통신을 말한다. 
@@ -104,6 +108,7 @@ USART 통신에 맞게 port를 연결하고 모드를 설정한다. MCO, TX, RX 
   
 <br>
 <br>
+
 ## UART 와 USART
  
 ### UART
@@ -118,6 +123,7 @@ UART(Universal Asynchronous Receiver/Transmitter) 는 범용 비동기화 송수
 시리얼 기반 통식 방식으로 보통 RS_232 를 통해 통신을 지원한다. 
 
 <br>
+
 ### USART
 
 USART(Universal Syn/Asynchronous Receiver/Transmitter) 는 범용 동기화 송수신기로 
@@ -136,6 +142,7 @@ Baud rate 를 구하는 식은 다음과 같다.
 ![](../images/experiment03/baudrate.JPG)
 
 <br>
+
 #### USART 데이터 송/수신간
 
 ![](../images/experiment03/usart_data.jpg)
@@ -161,6 +168,7 @@ STM32 MCU 의 clock 은 SYSCLK 으로 나타나 있는 system clock 을 기반�
 2. HSI clock : 보드의 내부 클락으로 8Mhz 의 값을 가진다. 
 
 <br>
+
 #### Clock Tree
 
 ![](../images/experiment03/clock_tree.jpg)
@@ -203,6 +211,7 @@ Oscilloscope 와 연결하여 clock 설정이 정상적인지 확인할 수 있�
 
 <br>
 <br>
+
 # 구현 
 
 ## register 초기화
@@ -225,6 +234,7 @@ RCC_CFGR 로 MCO 가 clock을 받지 않고 HSI 가 SYSCLK 가 되도록 초기�
 초기화 시킨 코드
 
 <br>
+
 ## Clock 값 설정
 
 이번 실험에서 주어진 Clock 값은 다음과 같다. 
@@ -246,6 +256,7 @@ RCC_CFGR 로 MCO 가 clock을 받지 않고 HSI 가 SYSCLK 가 되도록 초기�
 	5. SW multiplexer 에서 PLLCLK 값 선택
 
 <br>
+
 ``` cpp
 /* Configure PLLs ------------------------------------------------------*/
     /* PLL configuration: PLLCLK = ???? */
@@ -391,6 +402,7 @@ System 내부/외부 클럭을 조절하여 원하는 클럭을 생성하고 이
 <br>
 <br>
 <br>
+
 # 전체 소스
 ``` cpp 
 #include "stm32f10x_gpio.h"
