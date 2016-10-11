@@ -406,8 +406,7 @@ System 내부/외부 클럭을 조절하여 원하는 클럭을 생성하고 이
 
 # 전체 소스
 
-``` cpp 
-
+``` cpp
 #include "stm32f10x_gpio.h"
 #include "stm32f10x.h"
 #include "stm32f10x_usart.h"
