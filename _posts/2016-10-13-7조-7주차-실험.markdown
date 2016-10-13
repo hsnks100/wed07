@@ -61,7 +61,7 @@ hardware interrupt 는 비동기식 event 처리로 peripheral(주변장치) 의
 supervisor call 은 OS 의 작동 모드를 user-level program mode 로부터 supervisor mode 로 전환할 수 있는 instruction 이다. 
 instruction set 으로 특별한 instruction, SWI(SoftWare Interrupt, Supervisor Call) 를 포함한다. 
 
-![](../images/experiment04/supervisor.jpg)
+![](../images/experiment04/supervisor.JPG)
 
 text string 을 출력하는 subroutine 예시. 
 
@@ -86,7 +86,7 @@ exception handler는 memory stack에 몇몇의 user register를 저장하기 위
 <br>
 ###Excpetion Handling 과 Vector Table
 
-![](../images/experiment04/exception_vectorTable.jpg)
+![](../images/experiment04/exception_vectorTable.JPG)
 
 위 그림은 vector table 이다. 
 
@@ -99,7 +99,7 @@ LR_<mode> 에 return address 를 저장한다. PC 를 vector address 로 set 한
 
 ####NVIC(Nested Vectored Interrupt Controller)
 
-![](../images/experiment04/Nested.jpg)
+![](../images/experiment04/Nested.JPG)
 
 NVIC 는 중첩된 interrupt 를 제어하는 기능이다. 모든 exception 에 대해 priority 가 설정되어 있고 이 우선순위에 따라
 interrupt 를 처리한다. interrupt 가 발생해 core(Cortex-M3) 로 알려주면 core 에서 interrupt handler 를 호출할지, 무시할지 등을 결정하는 역할이다. 
@@ -142,7 +142,6 @@ processor 는 interrupt 를 인지하여 처리하기 전에 pending register(�
 
 외부 interrupt 는 EXTI10 ~ EXTI15 까지 각 port 의 pin 번호가 interrupt pin 과 매치된다. 
 
-<br>
 <br>
 ###I/O System
 
