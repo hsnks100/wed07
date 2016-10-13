@@ -1,6 +1,6 @@
 
 # 개요
-Interrupt 방식을 활용하여 GPIO 제어 및 UART 통신을 실험한다.
+Interrupt 방식을 활용하여 GPIO 제어 및 UART 통신. 외부 입력을 통해 interrupt 를 발생시키고 그 interrupt 를 이용하여 UART 를 동작시킨다. 
 
 # 세팅
 
@@ -19,13 +19,140 @@ C++ 프로젝트는 동작하지 않는 경우가 많기 때문에 C 프로젝�
 *그 외 자질구레한 세팅 추가???
 
 # 기본 개념 
-CPU가 특정 이벤트를 기다릴때 Interrupt와 Polling 두 가지 방식이 있다.
-Polling 방식은 CPU가 특정 이벤트의 발생을 처리하기 위해 이벤트가 발생할때까지 모든 연산을 이벤트가 발생하는지 감시하는데 소모한다.
+
+##Event 처리
+
+CPU가 특정 event를 기다릴때, Interrupt 와 Polling 두 가지 방식이 있다.
+
+###Polling
+
+![](../images/experiment04/polling.jpg)
+
+- Polling 방식 : CPU 가 특정 event의 발생을 처리하기 위해 event가 발생할때까지 모든 연산을 event가 발생하는지 감시하는데 소모한다.
+특정 주기를 가지고 그 주기마다 신호가 입력 되었는지 검사하는 방식이다. 구현이 쉽지만 시스템 성능 저하의 원인이 될 수 있다.
+
 <br>
 
-Interrupt는 CPU가 다른 연산을 수행하고 있던 도중이라도 특정 이벤트가 발생하면 연산을 멈추고 이벤트 처리를 위한 연산을 수행한다. 
-이벤트 수행이 끝나면 다시 이전 작업으로 돌아간다.
+###Interrupt
 
+![](../images/experiment04/interrupt.jpg)
+
+- Interrupt 방식 : CPU 가 다른 연산을 수행하고 있던 도중이라도 특정 event가 발생하면 연산을 멈추고 Interrupt Service Routine 을 수행한다. 
+event 수행이 끝나면 다시 이전 작업으로 돌아간다. 구현은 복잡하지만 처리가 정확하고 시스템 부하를 줄일 수 있다. 
+
+임베디드 시스템에서는 주로 software interrupt 가 소프트웨어적으로 발생하는 것이 아니라, 별더의 hardware interrupt 와 동일한 vector table 에 들어가서 동작한다. 
+
+1. Software Interrupt 
+
+software interrupt 는 동기식 event 처리로 사용자가 프로그램 내에서 interrupt 가 발생하도록 설정하는 것이다. 즉, 현재 실행하고 있는 instruction 으로부터 interrupt 발생 요청을 받는다. 
+
+- Program Interrupt : 프로그램 실행 중 프로그램상 오류나 예외 상태 발생으로 인한 interrupt.
+
+- Supervisor Call Interrupt : 프로그램 내에서 특별한 service 를 요구하거나, 운영체제의 감시 프로그램이 의도적으로 발생하는 경우에 실행되는 interrupt. 
+
+<br>
+2. Hardware Interrupt
+
+hardware interrupt 는 비동기식 event 처리로 peripheral(주변장치) 의 요청에 의해 발생하는 interrupt 이다. 
+
+<br>
+###Supervisor calls
+
+supervisor call 은 OS 의 작동 모드를 user-level program mode 로부터 supervisor mode 로 전환할 수 있는 instruction 이다. 
+instruction set 으로 특별한 instruction, SWI(SoftWare Interrupt, Supervisor Call) 를 포함한다. 
+
+![](../images/experiment04/supervisor.jpg)
+
+text string 을 출력하는 subroutine 예시. 
+
+###ARM Exceptions
+
+ARM exception 은 다양한 interrupts, traps, supervisor calls 을 지원한다. 
+
+exception handling 방식은 다음과 같다. 
+```
+1. PC 값을 r14_exc 그리고 CPSR 을 SPSR_exc 에 복사하여 저장함으로써 현재 상태를 저장한다. 
+
+2. precessor operation mode 에서 exception mode 로 전환된다. 
+
+3. PC 는 exception 종류에 따라 특정한 값을 가진 0x00 ~ 0x1C 사이의 값을 가진다.
+
+4. PC 에 저장된 명령어는 exception handler 로의 branch를 가진다;
+exception handler는 memory stack에 몇몇의 user register를 저장하기 위해 r13_exc 를 사용한다. 
+
+5. user register, PC와 CPSR 을 복원한다. 
+```
+
+<br>
+###Excpetion Handling 과 Vector Table
+
+![](../images/experiment04/exception_vectorTable.jpg)
+
+위 그림은 vector table 이다. 
+
+excption 이 발생하면 CPSR을 SPSR_<mode> 로 복사한다. 적절한 CPSR bits 를 설정한다. 적절한 banked register 에 mapping 시킨다. 
+LR_<mode> 에 return address 를 저장한다. PC 를 vector address 로 set 한다. 
+
+예외 처리 후, exception handler 는 SPSR_<mode> 로부터 CPSR 을 복원시키고 LR_<mode> 로부터 PC 를 복원시킨다. 
+
+###NVIC & EXTI
+
+####NVIC(Nested Vectored Interrupt Controller)
+
+![](../images/experiment04/Nested.jpg)
+
+NVIC 는 중첩된 interrupt 를 제어하는 기능이다. 모든 exception 에 대해 priority 가 설정되어 있고 이 우선순위에 따라
+interrupt 를 처리한다. interrupt 가 발생해 core(Cortex-M3) 로 알려주면 core 에서 interrupt handler 를 호출할지, 무시할지 등을 결정하는 역할이다. 
+ISER(Interrupt Set Enable Register), ICER(Interrupt Clear Enable Register) register 를 통해 interrupt 발생 여부를 결정하며, 
+각 interrupt 의 priority 을 인위적으로 IP를 통해 변경 가능하다. 
+
+Cortex-M3 는 240개의 Interrupt 를 NVIC 로 제어 가능하다. 
+
+<br>
+Interrupt 의 priority 를 매겨서 처리할 때는 두가지가 있다. 
+```
+1. preemtion : priority 가 높은 interrupt 가 들어올 때 현재 작업을 멈추고 해당 interrupt 를 진행.
+
+2. subpriority : interrupt 수행 중이 아닌, 대기 중에 있어서 priority 가 높은 것을 먼저 수행.   
+```
+
+<br>
+NVIC 는 Interrupt를 interrupt variable 에 mapping 한다. 
+
+![](../images/experiment04/NVIC.jpg)
+
+표를 보면 EXTI0, 1, 2, 3, 4, 5-9, 10-15 로 vector 값이 나누어진다. priority 는 0이 높고 10-15가 가장 낮다. 
+
+<br>
+####EXTI(External Interrupt)
+
+EXTI 는 외부에서 신호가 입력될 경우 device 에 event 나 interrupt 가 발생되는 기능이다.
+입력 받을 수 있는 신호는 rising edge, falling edge, rising & falling edge 이다. 각 port 의 n 번 pine은 EXTIn 에 연결된다. 
+
+EXTI는 event mode 와 interrupt mode 를 선택하여 설정할 수 있는데, 
+interrupt mode 로 설정할 경우 interrupt 가 발생해 해당 interrupt handler 가 동작한다. 
+
+20개의 edge detector line 으로 구성되어 각 line이 설정에 따라 rising / falling trigger 를 감지한다. 
+interrupt request 는 mask register 를 통해 알 수 있다. 
+
+processor 는 interrupt 를 인지하여 처리하기 전에 pending register(어떤 interrupt가 발생되었는지 저장) 를 
+검사하여 발생된 interrupt 중 priority 가 가장 높은 interrupt 를 처리한다. 
+
+![](../images/experiment04/EXTI.jpg)
+
+외부 interrupt 는 EXTI10 ~ EXTI15 까지 각 port 의 pin 번호가 interrupt pin 과 매치된다. 
+
+<br>
+<br>
+###I/O System
+
+I/O는 memory mapped 형태로, peripheral 의 내부적인 레지스터들은 ARM memory map 내부의 특정 위치에 있고 
+load-store instruction 을 사용하여 읽거나 쓸 수 있다. 
+Peripheral 은 normal interrupt(IRQ) 또는 fast interrupt(FIQ) input 을 사용한다. 
+몇몇의 system 은 높은 대역폭의 I/O traffic 을 다루기 위해 외부적으로 DAM hardware를 포함한다. 
+
+<br>
+<br>
 # 구현 
 
 
