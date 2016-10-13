@@ -1,22 +1,38 @@
 
 # 개요
- 
-  
-  
-  
+Interrupt 방식을 활용하여 GPIO 제어 및 UART 통신을 실험한다.
+
 # 세팅
 
+##eclipse
+5주차 실험의 scatter file을 위한 setting과 6주차 실험의 라이브러리를 추가 이후만 살펴보겠다.
+C++ 프로젝트는 동작하지 않는 경우가 많기 때문에 C 프로젝트를 생성하였다.
+![](../images/experiment04/cproject.PNG)
 
+<br>
+그리고 STM32 Peripheral Library를 추가하였다.
+여기서 stm32f10x_conf.h, stm32f10x_it.h, stm32f10x_it.c를 프로젝트 폴더에 추가하였기 때문에
+프로젝트 폴더를 새롭게 추가해 주었다.
+![](../images/experiment04/tree.PNG)
+![](../images/experiment04/include.PNG)
+
+*그 외 자질구레한 세팅 추가???
 
 # 기본 개념 
-  
+CPU가 특정 이벤트를 기다릴때 Interrupt와 Polling 두 가지 방식이 있다.
+Polling 방식은 CPU가 특정 이벤트의 발생을 처리하기 위해 이벤트가 발생할때까지 모든 연산을 이벤트가 발생하는지 감시하는데 소모한다.
+<br>
+
+Interrupt는 CPU가 다른 연산을 수행하고 있던 도중이라도 특정 이벤트가 발생하면 연산을 멈추고 이벤트 처리를 위한 연산을 수행한다. 
+이벤트 수행이 끝나면 다시 이전 작업으로 돌아간다.
 
 # 구현 
 
 
 # 실험 결과
 
-
+terminal을 통해 확인한 결과
+![](../images/experiment04/terminal.PNG)
 
 # 결론
 
