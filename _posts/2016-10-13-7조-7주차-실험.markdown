@@ -24,11 +24,12 @@ C++ 프로젝트는 동작하지 않는 경우가 많기 때문에 C 프로젝�
 
 CPU가 특정 event를 기다릴때, Interrupt 와 Polling 두 가지 방식이 있다.
 
+<br>
 ###Polling
 
 ![](../images/experiment04/polling.jpg)
 
-- Polling 방식 : CPU 가 특정 event의 발생을 처리하기 위해 event가 발생할때까지 모든 연산을 event가 발생하는지 감시하는데 소모한다.
+Polling 방식은 CPU 가 특정 event의 발생을 처리하기 위해 event가 발생할때까지 모든 연산을 event가 발생하는지 감시하는데 소모한다.
 특정 주기를 가지고 그 주기마다 신호가 입력 되었는지 검사하는 방식이다. 구현이 쉽지만 시스템 성능 저하의 원인이 될 수 있다.
 
 <br>
@@ -37,7 +38,7 @@ CPU가 특정 event를 기다릴때, Interrupt 와 Polling 두 가지 방식이 
 
 ![](../images/experiment04/interrupt.jpg)
 
-- Interrupt 방식 : CPU 가 다른 연산을 수행하고 있던 도중이라도 특정 event가 발생하면 연산을 멈추고 Interrupt Service Routine 을 수행한다. 
+Interrupt 방식은 CPU 가 다른 연산을 수행하고 있던 도중이라도 특정 event가 발생하면 연산을 멈추고 Interrupt Service Routine 을 수행한다. 
 event 수행이 끝나면 다시 이전 작업으로 돌아간다. 구현은 복잡하지만 처리가 정확하고 시스템 부하를 줄일 수 있다. 
 
 임베디드 시스템에서는 주로 software interrupt 가 소프트웨어적으로 발생하는 것이 아니라, 별더의 hardware interrupt 와 동일한 vector table 에 들어가서 동작한다. 
@@ -46,6 +47,7 @@ event 수행이 끝나면 다시 이전 작업으로 돌아간다. 구현은 복
 
 software interrupt 는 동기식 event 처리로 사용자가 프로그램 내에서 interrupt 가 발생하도록 설정하는 것이다. 즉, 현재 실행하고 있는 instruction 으로부터 interrupt 발생 요청을 받는다. 
 
+<br>
 - Program Interrupt : 프로그램 실행 중 프로그램상 오류나 예외 상태 발생으로 인한 interrupt.
 
 - Supervisor Call Interrupt : 프로그램 내에서 특별한 service 를 요구하거나, 운영체제의 감시 프로그램이 의도적으로 발생하는 경우에 실행되는 interrupt. 
@@ -65,6 +67,7 @@ instruction set 으로 특별한 instruction, SWI(SoftWare Interrupt, Supervisor
 
 text string 을 출력하는 subroutine 예시. 
 
+<br>
 ###ARM Exceptions
 
 ARM exception 은 다양한 interrupts, traps, supervisor calls 을 지원한다. 
@@ -95,6 +98,7 @@ LR_<mode> 에 return address 를 저장한다. PC 를 vector address 로 set 한
 
 예외 처리 후, exception handler 는 SPSR_<mode> 로부터 CPSR 을 복원시키고 LR_<mode> 로부터 PC 를 복원시킨다. 
 
+<br>
 ###NVIC & EXTI
 
 ####NVIC(Nested Vectored Interrupt Controller)
