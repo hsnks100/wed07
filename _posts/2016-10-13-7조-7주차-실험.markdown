@@ -1,4 +1,10 @@
-
+---
+layout: post
+author: 한성희, 이호욱, 한경수
+date: 2016-10-14 17:48 +0900
+tags: 
+comments: true
+---
 # 개요
 Interrupt 방식을 활용하여 GPIO 제어 및 UART 통신. 외부 입력을 통해 interrupt 를 발생시키고 그 interrupt 를 이용하여 UART 를 동작시킨다. 
 
@@ -263,7 +269,7 @@ start bits 를 제외하여 7bits 의 data bits 와 1bits 의 parity bits, stop 
 
 # 전체 소스
 
-```cpp
+``` cpp
 #include "stm32f10x.h"
 
 /* User defined function prototypes */
@@ -466,3 +472,4 @@ void EXTI15_10_IRQHandler(void) {
 	EXTI_ClearITPendingBit(EXTI_Line11);
 }
 ```
+
