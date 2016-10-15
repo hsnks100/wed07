@@ -1,21 +1,33 @@
 # 개요
-
-
-  
-  
+UART 를 통한 개발 보드와 스마트폰간의 블루투스 통신 
   
 # 세팅
 
-## eclipse
 
 ## android studio
+
+먼저 스마트폰에서 블루투스앱을 올려야 한다. 그러기 위해 샘플 프로젝트가 있다.
+
+BlueTooth 프로젝트를 android studio 에서 import 한 뒤 자신이 쓰는 스마트폰에 올린다.
 
 <br>
 
 
+PC <--> BOARD <--> BLUETOOTH(스마트폰)
+
+의 구도로 연결이 되는데, PC 와 BOARD 는 UART1 으로 연결시키고 BOARD 와 BLUETOOTH 모듈은 UART2 로 연결 시킨다.
+
+
+
 ## PC <-> BOARD
 
+그림과 같이 연결한다.
+
 ## BOARD <-> BLUETOOTH
+
+먼저 
+
+
 
 
 <br>
