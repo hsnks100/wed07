@@ -1,0 +1,42 @@
+---
+layout: post
+author: 한성희, 이호욱, 한경수
+date: 2016-10-14 17:48 +0900
+tags: 
+comments: true
+---
+# 개요
+
+  
+  
+  
+# 세팅
+
+## eclipse
+
+## android studio
+
+<br>
+
+
+## PC <-> BOARD
+
+## BOARD <-> BLUETOOTH
+
+
+<br>
+
+
+## 포트 연결
+
+전체적인 기계 연결 모습
+
+<br>
+<br>
+<br>
+
+# 기본 개념 
+  
+
+
+
