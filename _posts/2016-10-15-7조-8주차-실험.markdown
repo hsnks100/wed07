@@ -18,12 +18,11 @@ PC <--> BOARD <--> BLUETOOTH(스마트폰)
 의 구도로 연결이 되는데, PC 와 BOARD 는 UART1 으로 연결시키고 BOARD 와 BLUETOOTH 모듈은 UART2 로 연결 시킨다.
 
 
-
 ## PC <-> BOARD
 
 그림과 같이 연결한다.
 
-## BOARD <-> BLUETOOTH
+## BOARD <-> BLUETOOTH 
 
 먼저 
 
