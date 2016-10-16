@@ -311,32 +311,15 @@ void EXTI11_Config(void);
 
 int main(void)
 {
-  /* Initialize GPIOA PIN8 */
   GPIOD_Init();
-  /* Initialize USART1 */
   USART1_Init();
-  //  Configure_PD0();
   EXTI11_Config();
-  //  AFIO_EXTICR3_EXTI11 = AFIO_EXTICR3_EXTI11_PD;
-
-
-  /*RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);*/
-  /*GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;*/
-  /*GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;*/
-  /*GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;*/
-  /*GPIO_Init(GPIOD, &GPIO_InitStructure);*/
 
   while(1)
   {
-    // 踰꾪듉 �낅젰��
-    /*USART_SendData(USART1, 'T');*/
-    /* Do nothing, all happens in ISR */
   }
 }
 
-/***********************************************
- * Initialize GPIOA PIN8 as push-pull output
- ***********************************************/
 void GPIOD_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -347,53 +330,34 @@ void GPIOD_Init(void)
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_Init(GPIOD, &GPIO_InitStructure);
 
-  /*RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);*/
-  /*GPIO_Init(GPIOD, &gpioa_init_struct); */
-  /*GPIO_SetBits(GPIOA, GPIO_Pin_8);*/
 }
 
-/*****************************************************
- * Initialize USART1: enable interrupt on reception
- * of a character
- *****************************************************/
 void USART1_Init(void)
 {
-  /* USART configuration structure for USART1 */
   USART_InitTypeDef usart1_init_struct;
-  /* Bit configuration structure for GPIOA PIN9 and PIN10 */
   GPIO_InitTypeDef gpioa_init_struct;
 
-  /* Enalbe clock for USART1, AFIO and GPIOA */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_AFIO |
       RCC_APB2Periph_GPIOA, ENABLE);
 
-  /* GPIOA PIN9 alternative function Tx */
   gpioa_init_struct.GPIO_Pin = GPIO_Pin_9;
   gpioa_init_struct.GPIO_Speed = GPIO_Speed_50MHz;
   gpioa_init_struct.GPIO_Mode = GPIO_Mode_AF_PP;
   GPIO_Init(GPIOA, &gpioa_init_struct);
-  /* GPIOA PIN9 alternative function Rx */
   gpioa_init_struct.GPIO_Pin = GPIO_Pin_10;
   gpioa_init_struct.GPIO_Speed = GPIO_Speed_50MHz;
   gpioa_init_struct.GPIO_Mode = GPIO_Mode_IN_FLOATING;
   GPIO_Init(GPIOA, &gpioa_init_struct);
 
-  /* Enable USART1 */
   USART_Cmd(USART1, ENABLE);
-  /* Baud rate 9600, 8-bit data, One stop bit
-   * No parity, Do both Rx and Tx, No HW flow control
-   */
   usart1_init_struct.USART_BaudRate = 9600;
   usart1_init_struct.USART_WordLength = USART_WordLength_8b;
   usart1_init_struct.USART_StopBits = USART_StopBits_1;
   usart1_init_struct.USART_Parity = USART_Parity_No;
   usart1_init_struct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
   usart1_init_struct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  /* Configure USART1 */
   USART_Init(USART1, &usart1_init_struct);
-  /* Enable RXNE interrupt */
   USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
-  /* Enable USART1 global interrupt */
   NVIC_EnableIRQ(USART1_IRQn);
 }
 
@@ -402,49 +366,31 @@ void EXTI11_Config(void)
   GPIO_InitTypeDef GPIO_InitStructure;
   EXTI_InitTypeDef EXTI_InitStructure;
   NVIC_InitTypeDef NVIC_InitStructure;
-  /* Enable GPIOA clock */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
 
 
-  /* Configure PA.00 pin as input pull down */
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
   GPIO_Init(GPIOD, &GPIO_InitStructure);
 
-
-  /* Enable AFIO clock */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 
-  /* Connect EXTI0 Line to PA.00 pin */
   GPIO_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource11);
 
 
   EXTI_InitStructure.EXTI_Line = EXTI_Line11;
-  /* Enable interrupt */
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  /* Interrupt mode */
   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  /* Triggers on rising and falling edge */
   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-  /* Add to EXTI */
   EXTI_Init(&EXTI_InitStructure);
 
-  /* Add IRQ vector to NVIC */
-  /* PB12 is connected to EXTI_Line12, which has EXTI15_10_IRQn vector */
   NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
-  /* Set priority */
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
-  /* Set sub priority */
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
-  /* Enable interrupt */
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  /* Add to NVIC */
   NVIC_Init(&NVIC_InitStructure);
 }
 
-/*******************************************
- * Toggle LED
- *******************************************/
 void led_toggle(void)
 {
   GPIO_SetBits(GPIOD, GPIO_Pin_2);
@@ -453,36 +399,23 @@ void led_toggle(void)
   Delay(1000);
 }
 
-/**********************************************************
- * USART1 interrupt request handler: on reception of a
- * character 't', toggle LED and transmit a character 'T'
- *********************************************************/
 void USART1_IRQHandler(void) {
   char buf;
   int i = 0;
-  /* RXNE handler */
   if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) {
     USART_ClearITPendingBit(USART1, USART_IT_RXNE);
     buf = (unsigned char) USART_ReceiveData(USART1);
     for (i = 0; i < buf; i++) {
       led_toggle();
     }
-
   }
-  //	USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 }
 
 void EXTI15_10_IRQHandler(void) {
-  /* Make sure that interrupt flag is set */
   unsigned char buf[] = "Wed_team07";
-
-  /* RXNE handler */
-
   if (EXTI_GetITStatus(EXTI_Line11) != RESET) {
     send_string(buf);
   }
-
-  /* Clear interrupt flag */
   EXTI_ClearITPendingBit(EXTI_Line11);
 }
 ```
