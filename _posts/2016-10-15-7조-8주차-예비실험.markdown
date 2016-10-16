@@ -95,8 +95,8 @@ BluetoothChatService.java ... UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9
 
 ### 각 PIN 과 기능
 
-그림이랑 같이 설명...
 ![](../images/pre_exp/pin.PNG)
+
 STATUS PIN은 블루투스 모듈의 상태를 모니터링 하기 위해 사용된다.
 블루투스 연결을 대기 하거나 연결 시도 및 주변의 블루투스 장치를 검색 할 때는 LOW, HIGH를 반복하게 된다.
 
@@ -110,6 +110,7 @@ DCD PIN의 경우 1:N 통신시 마스터와 슬레이브의 connect check를 �
 VCC와 GND PIN을 각각 보드에 연결하고 RXD PIN과 TXD PIN은 stm32보드와 반대로 연결하여야 한다.
 
 따라서 이번 실험의 경우 블루투스 모듈과 STM32 보드의 연결도는 다음과 같아야 한다.
+
 ![](../images/pre_exp/nflowcont.PNG)
 
 
