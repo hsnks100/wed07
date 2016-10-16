@@ -85,6 +85,7 @@ text string 을 출력하는 subroutine 예시.
 ARM exception 은 다양한 interrupts, traps, supervisor calls 을 지원한다. 
 
 exception handling 방식은 다음과 같다. 
+
 ```
 1. PC 값을 r14_exc 그리고 CPSR 을 SPSR_exc 에 복사하여 저장함으로써 현재 상태를 저장한다. 
 
