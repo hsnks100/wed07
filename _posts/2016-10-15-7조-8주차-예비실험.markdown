@@ -152,12 +152,14 @@ AT란 준비라는 뜻을 가진 Attention의 앞글자인 AT에서 따온 말�
 
 ## FB755AC 설정
 
->2, 3, 4 안씀
+```
+2, 3, 4 안씀
 1, 6 번엔 LED
 12 VCC 엔 보드 VCC 연결 
 9번 RX 와 보드의 PA2 또는 PA3 연결
 9번 TX 와 보드의 PA2 또는 PA3 연결 
 1, 6 번 LED - 단자는 전부 GND 로 들어가게.
+```
 
 
 USART1 은 baud rate 57600 
