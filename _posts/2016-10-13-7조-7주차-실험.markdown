@@ -5,12 +5,13 @@ date: 2016-10-14 17:48 +0900
 tags: 
 comments: true
 ---
+
 # 개요
 Interrupt 방식을 활용하여 GPIO 제어 및 UART 통신. 외부 입력을 통해 interrupt 를 발생시키고 그 interrupt 를 이용하여 UART 를 동작시킨다. 
 
 # 세팅
 
-##eclipse
+## eclipse
 5주차 실험의 scatter file을 위한 setting과 6주차 실험의 라이브러리를 추가 이후만 살펴보겠다.
 C++ 프로젝트는 동작하지 않는 경우가 많기 때문에 C 프로젝트를 생성하였다.
 ![](../images/experiment04/cproject.PNG)
@@ -24,14 +25,17 @@ C++ 프로젝트는 동작하지 않는 경우가 많기 때문에 C 프로젝�
 
 *그 외 자질구레한 세팅 추가???
 
+
+
 # 기본 개념 
 
-##Event 처리
+## Event 처리
 
 CPU가 특정 event를 기다릴때, Interrupt 와 Polling 두 가지 방식이 있다.
 
 <br>
-###Polling
+
+### Polling
 
 ![](../images/experiment04/polling.jpg)
 
@@ -40,7 +44,7 @@ Polling 방식은 CPU 가 특정 event의 발생을 처리하기 위해 event가
 
 <br>
 
-###Interrupt
+### Interrupt
 
 ![](../images/experiment04/interrupt.jpg)
 
@@ -64,7 +68,8 @@ software interrupt 는 동기식 event 처리로 사용자가 프로그램 내�
 hardware interrupt 는 비동기식 event 처리로 peripheral(주변장치) 의 요청에 의해 발생하는 interrupt 이다. 
 
 <br>
-###Supervisor calls
+
+### Supervisor calls
 
 supervisor call 은 OS 의 작동 모드를 user-level program mode 로부터 supervisor mode 로 전환할 수 있는 instruction 이다. 
 instruction set 으로 특별한 instruction, SWI(SoftWare Interrupt, Supervisor Call) 를 포함한다. 
@@ -74,7 +79,8 @@ instruction set 으로 특별한 instruction, SWI(SoftWare Interrupt, Supervisor
 text string 을 출력하는 subroutine 예시. 
 
 <br>
-###ARM Exceptions
+
+### ARM Exceptions
 
 ARM exception 은 다양한 interrupts, traps, supervisor calls 을 지원한다. 
 
@@ -93,7 +99,8 @@ exception handler는 memory stack에 몇몇의 user register를 저장하기 위
 ```
 
 <br>
-###Excpetion Handling 과 Vector Table
+
+### Excpetion Handling 과 Vector Table
 
 ![](../images/experiment04/exception_vectorTable.JPG)
 
@@ -105,9 +112,10 @@ LR_<mode> 에 return address 를 저장한다. PC 를 vector address 로 set 한
 예외 처리 후, exception handler 는 SPSR_<mode> 로부터 CPSR 을 복원시키고 LR_<mode> 로부터 PC 를 복원시킨다. 
 
 <br>
-###NVIC & EXTI
 
-####NVIC(Nested Vectored Interrupt Controller)
+### NVIC & EXTI
+
+#### NVIC(Nested Vectored Interrupt Controller)
 
 ![](../images/experiment04/Nested.JPG)
 
@@ -134,7 +142,8 @@ NVIC 는 Interrupt를 interrupt variable 에 mapping 한다.
 표를 보면 EXTI0, 1, 2, 3, 4, 5-9, 10-15 로 vector 값이 나누어진다. priority 는 0이 높고 10-15가 가장 낮다. 
 
 <br>
-####EXTI(External Interrupt/Event Controller)
+
+#### EXTI(External Interrupt/Event Controller)
 
 EXTI 는 외부에서 신호가 입력될 경우 device 에 event 나 interrupt 가 발생되는 기능이다.
 입력 받을 수 있는 신호는 rising edge, falling edge, rising & falling edge 이다. 각 port 의 n 번 pine은 EXTIn 에 연결된다. 
@@ -153,7 +162,8 @@ processor 는 interrupt 를 인지하여 처리하기 전에 pending register(�
 외부 interrupt 는 EXTI10 ~ EXTI15 까지 각 port 의 pin 번호가 interrupt pin 과 매치된다. 
 
 <br>
-###I/O System
+
+### I/O System
 
 I/O는 memory mapped 형태로, peripheral 의 내부적인 레지스터들은 ARM memory map 내부의 특정 위치에 있고 
 load-store instruction 을 사용하여 읽거나 쓸 수 있다. 
@@ -161,7 +171,8 @@ Peripheral 은 normal interrupt(IRQ) 또는 fast interrupt(FIQ) input 을 사용
 몇몇의 system 은 높은 대역폭의 I/O traffic 을 다루기 위해 외부적으로 DAM hardware를 포함한다. 
 
 <br>
-###Parity
+
+### Parity
 
 ![](../images/experiment04/parity.JPG)
 
@@ -189,6 +200,7 @@ Parity 는 asynchronous link 에서 사용되는 error detection 기술이다.
 
 <br>
 <br>
+
 #납땜
 
 만능기판에 받은 핀을 납땜한다. 
@@ -214,6 +226,7 @@ Parity 는 asynchronous link 에서 사용되는 error detection 기술이다.
 
 <br>
 <br>
+
 # 구현 
 
 
@@ -264,6 +277,7 @@ start bits 를 제외하여 7bits 의 data bits 와 1bits 의 parity bits, stop 
 위에서 말했듯이 이는 word length 를 8bits 로 한 결과임으로 9bits 를 보낸다면, 1101 01011 이 나왔을 것이다. 그렇게 되면 parity bits = 1 이 된다. 
 
 <br>
+
 # 결론
 
 
