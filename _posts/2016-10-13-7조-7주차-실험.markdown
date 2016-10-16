@@ -296,12 +296,12 @@ void Delay(int d){
 }
 
 void send_string(char buf[]) {
-	char *s = buf;
-	while (*s) {
-		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET)
-			;
-		USART_SendData(USART1, *s++);
-	}
+  char *s = buf;
+  while (*s) {
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET)
+      ;
+    USART_SendData(USART1, *s++);
+  }
 }
 
 void GPIOD_Init(void);
@@ -315,9 +315,9 @@ int main(void)
   GPIOD_Init();
   /* Initialize USART1 */
   USART1_Init();
-//  Configure_PD0();
+  //  Configure_PD0();
   EXTI11_Config();
-//  AFIO_EXTICR3_EXTI11 = AFIO_EXTICR3_EXTI11_PD;
+  //  AFIO_EXTICR3_EXTI11 = AFIO_EXTICR3_EXTI11_PD;
 
 
   /*RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);*/
@@ -399,9 +399,9 @@ void USART1_Init(void)
 
 void EXTI11_Config(void)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
-	  EXTI_InitTypeDef EXTI_InitStructure;
-	  NVIC_InitTypeDef NVIC_InitStructure;
+  GPIO_InitTypeDef GPIO_InitStructure;
+  EXTI_InitTypeDef EXTI_InitStructure;
+  NVIC_InitTypeDef NVIC_InitStructure;
   /* Enable GPIOA clock */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
 
@@ -458,32 +458,32 @@ void led_toggle(void)
  * character 't', toggle LED and transmit a character 'T'
  *********************************************************/
 void USART1_IRQHandler(void) {
-	char buf;
-	int i = 0;
-	/* RXNE handler */
-	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) {
-		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
-		buf = (unsigned char) USART_ReceiveData(USART1);
-		for (i = 0; i < buf; i++) {
-			led_toggle();
-		}
+  char buf;
+  int i = 0;
+  /* RXNE handler */
+  if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) {
+    USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+    buf = (unsigned char) USART_ReceiveData(USART1);
+    for (i = 0; i < buf; i++) {
+      led_toggle();
+    }
 
-	}
-//	USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+  }
+  //	USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 }
 
 void EXTI15_10_IRQHandler(void) {
-	/* Make sure that interrupt flag is set */
-	unsigned char buf[] = "Wed_team07";
+  /* Make sure that interrupt flag is set */
+  unsigned char buf[] = "Wed_team07";
 
-	/* RXNE handler */
+  /* RXNE handler */
 
-	if (EXTI_GetITStatus(EXTI_Line11) != RESET) {
-		send_string(buf);
-	}
+  if (EXTI_GetITStatus(EXTI_Line11) != RESET) {
+    send_string(buf);
+  }
 
-	/* Clear interrupt flag */
-	EXTI_ClearITPendingBit(EXTI_Line11);
+  /* Clear interrupt flag */
+  EXTI_ClearITPendingBit(EXTI_Line11);
 }
 ```
 
