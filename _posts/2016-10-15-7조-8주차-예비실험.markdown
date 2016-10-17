@@ -42,6 +42,12 @@ PC <--> BOARD <--> BLUETOOTH(스마트폰)
 
 # 기본 개념 (배경 지식)
 
+## 블루투스 
+
+![](../images/pre_exp/bluetooth.jpg)
+
+블루투스는 휴대폰 - 휴대폰 또는 휴대폰 - PC 간에 사진이나 벨소리 등의 파일을 전송하는 무선전송기술이다. 
+
 ## 블루투스 통신 개요와 마스터 슬레이브 구조
 
 ![](../images/pre_exp/masterslave.png)
@@ -69,8 +75,12 @@ SPP 를 이용하면 두 장치가 RX, TX 가 유선으로 연결된 것 처럼 
 
 ## 블루투스 SSID와 UUID
 
+###SSID (Service Set Identifier)
+
 SSID 는 Wi-Fi 네트워크 이름이다.
 SSID 는 주변 장치에서 무선 라우터를 식별할 수 있도록 무선 라우터가 브로드캐스트하는 이름입니다.
+
+###UUID (Universally Unique Identifier)
 
 블루투스에는 Wi-Fi 의 대응되는 개념으로 UUID 가 있다.  
 
@@ -90,7 +100,13 @@ BluetoothChatService.java ... UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9
 
 ![](../images/pre_exp/FB755AC_spec3.jpg) 
 
-펌테크에서 나온 제품으로 최대 7대 까지 슬레이브를 잡을 수 있으며, 100m 까지 인식 한다. 
+- 펌테크에서 나온 제품으로 최대 7대 까지 슬레이브를 잡을 수 있으며, 100m 까지 인식 
+
+- 12 Pin Header Type 으로 되어있어 제품에 쉽게 적용 가능
+
+- AT 명령어를 지원하며 AT 명령어를 이용하여 FB755AD 제어 가능
+
+- Smartphone, Notebook, PDA 등의 스마트 장치들과 연결 및 통신 가능성이
 
 
 ### 각 PIN 과 기능
@@ -122,7 +138,7 @@ VCC와 GND PIN을 각각 보드에 연결하고 RXD PIN과 TXD PIN은 stm32보�
 
 헤이즈 마이크로컴퓨터 사가 개발한 헤이즈 스마트 모뎀과 그 호환 모뎀을 제어하기위해 사용되는 명령어로 현재에는 사실상 거의 모든 모뎀의 표준 명령어이다.
 
-본래는의 명칭은 헤이즈 명령어인데 통상 AT로 명령어가 시작되기 때문에 AT명령어라고 불린다.
+본래는의 명칭은 헤이즈 명령어인데, 통상 AT로 명령어가 시작되기 때문에 AT명령어라고 불린다.
 
 AT란 준비라는 뜻을 가진 Attention의 앞글자인 AT에서 따온 말로 헤이즈 명령어는 AT+Command와 같이 매우 간단한 명령어 구조를 가지고 있다.
 
@@ -140,10 +156,14 @@ AT란 준비라는 뜻을 가진 Attention의 앞글자인 AT에서 따온 말�
 
 # 실험 방법
 
+PC terminal 에서 메세지를 입력하면 UART를 이용하여 board 에 전달. board 에서 다른 UART 통신을 이용하여
+Blue-tooth 에게 Smart phone 에 전달하라고 명령을 보낸다. 
+
 ## 개발보드와 FB755AC 연결(납땜) 방법
 
+![](../images/pre_exp/soldering.jpg)
 
-사진과 ㅎ함께 납땜 방법!!
+
 최대한 이쁘게 납땜해야 나중에 문제 생겼을 때 파악하기 쉽다.
 
 -------------
@@ -153,21 +173,20 @@ AT란 준비라는 뜻을 가진 Attention의 앞글자인 AT에서 따온 말�
 ## FB755AC 설정
 
 ```
-2, 3, 4 안씀
-1, 6 번엔 LED
-12 VCC 엔 보드 VCC 연결 
-9번 RX 와 보드의 PA2 또는 PA3 연결
-9번 TX 와 보드의 PA2 또는 PA3 연결 
-1, 6 번 LED - 단자는 전부 GND 로 들어가게.
+- 2, 3, 4번 : 사용 X 
+- 1, 6번 : LED 와 연결 (LED의 다리 긴쪽이 (+))
+- 12번 : VCC 엔 보드 VCC 연결 
+- 9번 : RX 와 보드의 PA2 또는 PA3 연결
+- 8번 : TX 와 보드의 PA2 또는 PA3 연결 
+- 5번 : 점프선으로 연결하여, 기본 low 값으로 점프선을 high 부분에 연결할 수 있도록 만든다. 
 ```
 
-
+<br>
 USART1 은 baud rate 57600 
 USART2 은 baud rate 9600
 
 5번 포트가 설정할지 안할지 설정하는 건데, 점프선으로 간단하게 실험 가능하도록 세팅 해야함.
 5번 포트가 high 로 연결 되어있으면 설정모드고 low 면 설정모드가 아님!!  
-
 
 
 ## 실습 과정
