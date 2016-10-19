@@ -265,8 +265,244 @@ void USART2_IRQHandler(void) {
 
 <br>
 
-![](images/pre_exp/result.PNG)
+![](../images/pre_exp/result.PNG)
 
 Configuration 화면을 확인한 뒤, AT 명령어를 이용하여 제대로 통신이 되는지 확인한다. 
 
 그 후, Configuration 모드를 해제하여 chatting APP 을 실행하여 자신의 Bluetooth 모듈이 검색되면 연결한 후 채팅 가능한지 확인한다. 
+
+<br>
+
+# 결론
+
+
+
+
+<br>
+
+# 전체 소스
+
+```cpp
+#include "stm32f10x.h"
+
+void Delay(int d){
+  int i=0;
+  for(i=0; i<1000000; i++){
+    ;
+  }
+}
+
+void send_com(char buf[]) {
+	char *s = buf;
+	while (*s) {
+		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET)
+			;
+		USART_SendData(USART1, *s++);
+	}
+}
+
+void send_phone(char buf[]) {
+	char *s = buf;
+	while (*s) {
+		while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET)
+			;
+		USART_SendData(USART2, *s++);
+	}
+}
+
+void USART1_Init(void);
+void USART2_Init(void);
+void GPIOD_Init(void);
+void led_toggle(void);
+void EXTI11_Config(void);
+
+//GPIOD_INIT -> USART_init -> EXTI11_Config
+// USART1_IRQHandler 는 컴퓨터로부터 받는 인터럽트 아스키 보냈을 대 횟수만큼 led 반짝(USART1_INTTERUPT )
+// EXTI15_10_IRQHandler 는 버튼 인터럽트.
+
+int main(void)
+{
+  GPIOD_Init();
+	EXTI11_Config();
+	SystemInit();
+	USART1_Init();
+	USART2_Init();
+
+  while(1)
+  {
+  }
+}
+
+void USART1_Init(void)
+{
+  USART_InitTypeDef usart1_init_struct;
+  GPIO_InitTypeDef gpioa_init_struct;
+  NVIC_InitTypeDef NVIC_InitStructure;
+
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_AFIO |
+		  RCC_APB2Periph_GPIOA, ENABLE);
+
+  gpioa_init_struct.GPIO_Pin = GPIO_Pin_9;
+  gpioa_init_struct.GPIO_Speed = GPIO_Speed_50MHz;
+  gpioa_init_struct.GPIO_Mode = GPIO_Mode_AF_PP;
+  GPIO_Init(GPIOA, &gpioa_init_struct);
+  gpioa_init_struct.GPIO_Pin = GPIO_Pin_10;
+  gpioa_init_struct.GPIO_Speed = GPIO_Speed_50MHz;
+  gpioa_init_struct.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIOA, &gpioa_init_struct);
+
+  usart1_init_struct.USART_BaudRate = 57600;
+  usart1_init_struct.USART_WordLength = USART_WordLength_8b;
+  usart1_init_struct.USART_StopBits = USART_StopBits_1;
+  usart1_init_struct.USART_Parity = USART_Parity_No;
+  usart1_init_struct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+  usart1_init_struct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  USART_Init(USART1, &usart1_init_struct);
+  USART_Cmd(USART1, ENABLE);
+  USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+
+  NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+}
+
+void USART2_Init(void)
+{
+  USART_InitTypeDef usart2_init_struct;
+  GPIO_InitTypeDef gpioa_init_struct;
+  NVIC_InitTypeDef NVIC_InitStructure;
+
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+
+  // tx, rx 설정
+  gpioa_init_struct.GPIO_Pin = GPIO_Pin_2;
+  gpioa_init_struct.GPIO_Speed = GPIO_Speed_50MHz;
+  gpioa_init_struct.GPIO_Mode = GPIO_Mode_AF_PP;
+  GPIO_Init(GPIOA, &gpioa_init_struct);
+
+  gpioa_init_struct.GPIO_Pin = GPIO_Pin_3;
+  gpioa_init_struct.GPIO_Speed = GPIO_Speed_50MHz;
+  gpioa_init_struct.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIOA, &gpioa_init_struct);
+
+  usart2_init_struct.USART_BaudRate = 9600;
+  usart2_init_struct.USART_WordLength = USART_WordLength_8b;
+  usart2_init_struct.USART_StopBits = USART_StopBits_1;
+  usart2_init_struct.USART_Parity = USART_Parity_No;
+  usart2_init_struct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+  usart2_init_struct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  USART_Init(USART2, &usart2_init_struct);
+  USART_Cmd(USART2, ENABLE);
+  USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+
+  NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+
+
+
+}
+
+void USART1_IRQHandler(void) {
+	unsigned char d;
+	while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET)
+		;
+
+	d = (unsigned char) USART_ReceiveData(USART1);
+	USART_SendData(USART2, d);
+	USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+
+//	unsigned char buf[2];
+//	int i = 0;
+//	buf[1] = 0;
+//
+//	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) {
+//		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+//		buf[0] = (unsigned char) USART_ReceiveData(USART1);
+//		send_phone(buf);
+//	}
+}
+
+void USART2_IRQHandler(void) {
+	unsigned char d;
+	while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET)
+		;
+
+	d = (unsigned char) USART_ReceiveData(USART2);
+	USART_SendData(USART1, d);
+	USART_ClearITPendingBit(USART2, USART_IT_RXNE);
+
+//	unsigned char buf[2];
+//	int i = 0;
+//	buf[1] = 0;
+//
+//	if (USART_GetITStatus(USART2, USART_IT_RXNE) != RESET) {
+//		USART_ClearITPendingBit(USART2, USART_IT_RXNE);
+//		buf[0] = (unsigned char) USART_ReceiveData(USART2);
+//		send_com(buf);
+//	}
+}
+
+void GPIOD_Init(void)
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
+
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_Init(GPIOD, &GPIO_InitStructure);
+
+}
+
+void EXTI11_Config(void)
+{
+	GPIO_InitTypeDef GPIO_InitStructure;
+	EXTI_InitTypeDef EXTI_InitStructure;
+	NVIC_InitTypeDef NVIC_InitStructure;
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
+
+
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+  GPIO_Init(GPIOD, &GPIO_InitStructure);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+
+  GPIO_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource11);
+
+
+  EXTI_InitStructure.EXTI_Line = EXTI_Line11;
+  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+  EXTI_Init(&EXTI_InitStructure);
+
+  NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+}
+
+//void led_toggle(void)
+//{
+//  GPIO_SetBits(GPIOD, GPIO_Pin_2);
+//  Delay(1000);zzzzz
+//  GPIO_ResetBits(GPIOD, GPIO_Pin_2);
+//  Delay(1000);
+//}
+
+void EXTI15_10_IRQHandler(void) {
+	unsigned char buf[] = "Wed_team07";
+	if (EXTI_GetITStatus(EXTI_Line11) != RESET) {
+		send_com(buf);
+	}
+	EXTI_ClearITPendingBit(EXTI_Line11);
+}
+
+```
