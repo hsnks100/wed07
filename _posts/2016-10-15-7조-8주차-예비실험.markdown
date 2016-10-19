@@ -2,33 +2,6 @@
 UART 를 통한 개발 보드와 스마트폰간의 블루투스 통신 
   
 <br>
-
-
-PC <--> BOARD <--> BLUETOOTH(스마트폰)
-
-의 구도로 연결이 되는데, PC 와 BOARD 는 UART1 으로 연결시키고 BOARD 와 BLUETOOTH 모듈은 UART2 로 연결 시킨다.
-
-
-## PC <-> BOARD
-
-그림과 같이 연결한다.
-
-## BOARD <-> BLUETOOTH 
-
-먼저 
-
-
-
-
-<br>
-
-
-## 포트 연결
-
-전체적인 기계 연결 모습
-
-<br>
-<br>
 <br>
 
 # 기본 개념 (배경 지식)
@@ -38,6 +11,8 @@ PC <--> BOARD <--> BLUETOOTH(스마트폰)
 ![](../images/pre_exp/bluetooth.jpg)
 
 블루투스는 휴대폰 - 휴대폰 또는 휴대폰 - PC 간에 사진이나 벨소리 등의 파일을 전송하는 무선전송기술이다. 
+
+<br>
 
 ## 블루투스 통신 개요와 Master-Slave 구조
 
@@ -55,10 +30,17 @@ PC <--> BOARD <--> BLUETOOTH(스마트폰)
 
 ![](../images/pre_exp/bluetooth_tel.PNG)
 
+```
 1. 블루투스는 기본적으로 Master와 Slave인 주종인 역할(ROLE)로 동작한다.
+
 2. 통상적으로 Inquiry(검색) 및 Page(연결요청)을 하는 쪽을 Master라고 하며, Inquiry Scan(검색 대기) 및 Page Scan(연결 대기)를 하는 쪽을 Slave 라고 한다.
+
 3. Master가 주변의 Slave를 찾으면(Inquiry), Slave는 자신의 정보를 Master에게 송신(Inquiry Response)한다.
+
 4. Slave의 정보가 Master와 일치하면 상호 연결이 이루어 지며, 데이터 전송이 가능하게 한다.
+```
+
+<br>
 
 이번 실험에서 Smartphone이 주변 bluetooth가능한 기기를 찾게 되니깐, Master는 Smartphone이 되고 slave는 Bluetooth 모듈이 된다. 
 
@@ -74,7 +56,6 @@ PC <--> BOARD <--> BLUETOOTH(스마트폰)
 프로파일이란 어떤 종류의 데이터를 보내는지 명확하게 정의하기 위한, 블루투스의 프로토콜이다.
 프로파일의 종류로는 HSP, HID, SPP, A2DP 와 같은 여러가지가 있는데, 우리가 다룰 프로파일은 SPP 이다.
 
-<br>
 ### SPP
 SPP(Serial Port Profile)은 RS-232 통신을 무선으로 대체시키려고 할 때 쓴다.
 시리얼 통신을 이용하여 데이터를 송/수신하는 프로파일로 SPP 를 이용하면 두 장치가 RX, TX 가 유선으로 연결된 것 처럼 동작한다.  
@@ -88,7 +69,6 @@ SPP(Serial Port Profile)은 RS-232 통신을 무선으로 대체시키려고 할
 SSID 는 Wi-Fi 네트워크 이름으로, 주변 장치에서 무선 라우터를 식별할 수 있도록 무선 라우터가 broadcast 하는 이름입니다.
 
 <br>
-
 ### UUID (Universally Unique Identifier)
 
 블루투스에는 Wi-Fi 의 대응되는 개념으로 UUID 가 있다.  
@@ -114,7 +94,7 @@ Bluetooth 에서는 device 에서 제공하는 service 를 검색하여 각 serv
 
 - Smartphone, Notebook, PDA 등의 스마트 장치들과 연결 및 통신 가능성이
 
-
+<br>
 ### 각 PIN 과 기능
 
 ![](../images/pre_exp/pin.PNG)
