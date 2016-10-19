@@ -1,15 +1,6 @@
 # 개요
 UART 를 통한 개발 보드와 스마트폰간의 블루투스 통신 
   
-# 세팅
-
-
-## android studio
-
-먼저 스마트폰에서 블루투스앱을 올려야 한다. 그러기 위해 샘플 프로젝트가 있다.
-
-BlueTooth 프로젝트를 android studio 에서 import 한 뒤 자신이 쓰는 스마트폰에 올린다.
-
 <br>
 
 
@@ -48,59 +39,74 @@ PC <--> BOARD <--> BLUETOOTH(스마트폰)
 
 블루투스는 휴대폰 - 휴대폰 또는 휴대폰 - PC 간에 사진이나 벨소리 등의 파일을 전송하는 무선전송기술이다. 
 
-## 블루투스 통신 개요와 마스터 슬레이브 구조
+## 블루투스 통신 개요와 Master-Slave 구조
 
-![](../images/pre_exp/masterslave.png)
+### 블루투스 통신 개요
+
 
 블루투스의 무선 시스템은 ISM 주파수 대역인 2400~2483.5MHz를 사용한다. 이 주파수 대역은 산업, 의료, 과학용으로 할당된 주파수로 따로 전파사용에 대한 허가를 받을 필요가 
 없어서 개인 무선 통신에 쓰인다.
-좁은 대역대에 많은 기기가 몰리다보니 충돌이나 간섭 가능성이 생기게 됐는데, 이를 피하기 위해 주파수 호핑방식을 블루투스에서 쓰게 되는데 
-주파수 호핑 방식은 짧은 시간에 주파수를 이동하면서 패킷을 잘게잘게 보내는 방식이다. 이 호핑 방식을 매칭하는게 일반적인 우리가 알고 있는 블루투스 연결이라는 개념이다.
+데이터 전송 거리는 10m 정도로 최대 100m 까지 가능하다.
+좁은 대역대에 많은 기기가 몰리다보니 충돌이나 간섭 가능성이 생기게 됐는데, 이를 피하기 위해 주파수 호핑기법(FHSS : Frequency Hop Spread Spectrum)을 사용하여 간섭과 페이딩을 방지한다. 주파수 호핑기법은 짧은 시간에 주파수를 이동하면서 패킷을 잘게잘게 보내는 방식이다. 이 호핑 방식을 매칭하는게 일반적인 우리가 알고 있는 블루투스 연결이라는 개념이다.
+블루투스는 Master-Slave 형태로 구성되며, 한 개의 블루투스 장치에 7개가 동시 접속 가능하다. 
 
-즉, 마스터가 생성하는 주파수호핑에 슬레이브가 동기화시켜야 한다. 
+<br>
+### 블루투스 통신 구조
 
+![](../images/pre_exp/bluetooth_tel.PNG)
 
+1. 블루투스는 기본적으로 Master와 Slave인 주종인 역할(ROLE)로 동작한다.
+2. 통상적으로 Inquiry(검색) 및 Page(연결요청)을 하는 쪽을 Master라고 하며, Inquiry Scan(검색 대기) 및 Page Scan(연결 대기)를 하는 쪽을 Slave 라고 한다.
+3. Master가 주변의 Slave를 찾으면(Inquiry), Slave는 자신의 정보를 Master에게 송신(Inquiry Response)한다.
+4. Slave의 정보가 Master와 일치하면 상호 연결이 이루어 지며, 데이터 전송이 가능하게 한다.
+
+이번 실험에서 Smartphone이 주변 bluetooth가능한 기기를 찾게 되니깐, Master는 Smartphone이 되고 slave는 Bluetooth 모듈이 된다. 
+
+![](../images/pre_exp/masterslave.png)
+
+블루투스 연결을 위해서는 Master 가 생성하는 주파수호핑에 Slave 가 동기화시켜야 한다. master 와 slave 는 상황에 따라 역할을 바꿀 수 있고 slave 끼리는 통신이 불가능하다. 
+
+<br>
 ## 블루투스 프로파일과 SPP
 
-블루투스에는 프로파일이라는것이 있는데 프로파일은 어떤 종류의 데이터를 보내는지 명확하게 정의하기 위한,
-블루투스의 표준스펙중 하나다.
+### 블루투스 프로파일
 
-HSP, HID, SPP, A2DP 와 같은 여러가지 프로파일이 있는데 우리가 다룰 프로파일은 SPP 이다.
+프로파일이란 어떤 종류의 데이터를 보내는지 명확하게 정의하기 위한, 블루투스의 프로토콜이다.
+프로파일의 종류로는 HSP, HID, SPP, A2DP 와 같은 여러가지가 있는데, 우리가 다룰 프로파일은 SPP 이다.
 
-
-Serial Port Profile (SPP) 은 RS-232 통신을 무선으로 대체시키려고 할 때 쓴다.
-SPP 를 이용하면 두 장치가 RX, TX 가 유선으로 연결된 것 처럼 동작한다.  
+<br>
+### SPP
+SPP(Serial Port Profile)은 RS-232 통신을 무선으로 대체시키려고 할 때 쓴다.
+시리얼 통신을 이용하여 데이터를 송/수신하는 프로파일로 SPP 를 이용하면 두 장치가 RX, TX 가 유선으로 연결된 것 처럼 동작한다.  
 
 <br>
 
 ## 블루투스 SSID와 UUID
 
-###SSID (Service Set Identifier)
+### SSID (Service Set Identifier)
 
-SSID 는 Wi-Fi 네트워크 이름이다.
-SSID 는 주변 장치에서 무선 라우터를 식별할 수 있도록 무선 라우터가 브로드캐스트하는 이름입니다.
-
-###UUID (Universally Unique Identifier)
-
-블루투스에는 Wi-Fi 의 대응되는 개념으로 UUID 가 있다.  
-
-블루투스의 UUID란 범용 고유 번호(Universally Unique Identifiers)라고 불리며 128비트의 숫자들을 조합한다. 
-말 그대로 범용적으로 사용할 수 있는 고유의 ID를 사용하기 위하여 생성되며, 그렇기 때문에 128비트의 Hex조합은 
-Unique하여야 한다. 
-Bluetooth에서는 device에서 제공하는 service를 검색하여 각 service마다 UUID를 부여하는 등 많은 부분에서 사용된다.
-
-
-안드로이드 샘플앱의 다음 파일에 uuid 가 정해지고 있는것을 알 수 있다.
-BluetoothChatService.java ... UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
-
+SSID 는 Wi-Fi 네트워크 이름으로, 주변 장치에서 무선 라우터를 식별할 수 있도록 무선 라우터가 broadcast 하는 이름입니다.
 
 <br>
 
-## FB755AC 모듈 
+### UUID (Universally Unique Identifier)
+
+블루투스에는 Wi-Fi 의 대응되는 개념으로 UUID 가 있다.  
+
+블루투스의 UUID 란, 범용 고유 번호라고 불리며 128비트의 숫자들을 조합한다. 
+말 그대로 범용적으로 사용할 수 있는 고유의 ID를 사용하기 위하여 생성되며, 그렇기 때문에 128bits 의 Hex 조합은 
+Unique 하여야 한다. 
+Bluetooth 에서는 device 에서 제공하는 service 를 검색하여 각 service 마다 UUID 를 부여하는 등 많은 부분에서 사용된다.
+
+<br>
+
+## FB755AC 
+
+### FB755AC 모듈
 
 ![](../images/pre_exp/FB755AC_spec3.jpg) 
 
-- 펌테크에서 나온 제품으로 최대 7대 까지 슬레이브를 잡을 수 있으며, 100m 까지 인식 
+- Firmtech 에서 나온 제품으로 최대 7대 까지 slave 를 잡을 수 있으며, 100m 까지 인식
 
 - 12 Pin Header Type 으로 되어있어 제품에 쉽게 적용 가능
 
@@ -120,18 +126,15 @@ CTS/RTS/DSR/DTR PIN은 흐름제어를 사용하지 않을 시에는 연결하�
 
 CONFIG_SELECT PIN을 사용하여 블루투스 설정을 할 수 있다.
 
-* 환경 설정 화면?
-
-DCD PIN의 경우 1:N 통신시 마스터와 슬레이브의 connect check를 하고 1:1 통신 시에는 UART data carrier detect로 사용한다.
-
-VCC와 GND PIN을 각각 보드에 연결하고 RXD PIN과 TXD PIN은 stm32보드와 반대로 연결하여야 한다.
-
-따라서 이번 실험의 경우 블루투스 모듈과 STM32 보드의 연결도는 다음과 같아야 한다.
+<br>
 
 ![](../images/pre_exp/nflowcont.PNG)
 
+위 그림은 시스템 연결도로, DCD PIN의 경우 1:N 통신시 마스터와 슬레이브의 connect check를 하고 1:1 통신 시에는 UART data carrier detect로 사용한다.
 
+VCC와 GND PIN을 각각 보드에 연결하고 RXD PIN과 TXD PIN은 stm32보드와 반대로 연결하여야 한다.
 
+<br>
 <br>
 
 ## AT 명령어
@@ -149,50 +152,141 @@ AT란 준비라는 뜻을 가진 Attention의 앞글자인 AT에서 따온 말�
 
 또한 AT외에 at라고 사용하여도 되나 aT나 At와 같이 쓰면 인식하지 못하므로 이는 피해야하며 명령어는 한 줄에 40자까지 적을 수 있다.
 
-이번 실험에서는 이 AT명령어로 Bluetooth 모듈이 모바일에서 검색 및 연결을 대기할 수 있도록 만들어 주기위해 사용되며 AT+BTSCAN의 명령어를 사용한다.
+<br>
 
 ![](../images/pre_exp/btscan.PNG)
 
+이번 실험에서는 이 AT명령어로 Bluetooth 모듈이 모바일에서 검색 및 연결을 대기할 수 있도록 만들어 주기위해 사용되며 AT+BTSCAN의 명령어를 사용한다.
+
+<br>
+<br>
 
 # 실험 방법
 
-PC terminal 에서 메세지를 입력하면 UART를 이용하여 board 에 전달. board 에서 다른 UART 통신을 이용하여
-Blue-tooth 에게 Smart phone 에 전달하라고 명령을 보낸다. 
+## Android Studio
+
+![](../images/pre_exp/sample_uuid.JPG)
+
+먼저 스마트폰에서 Bluetooth chatting App 을 올리기 위해서 Sample Project 에서 BluetoothChat 을 선택하여 적절한 UUID 값으로 변경한다. 
+
+Sample Project 를 android studio 에서 import 한 뒤, 자신이 쓰는 스마트폰에 올린다.
+
+<br>
+## UART 세팅
+
+![](../images/pre_exp/uart.PNG)
+
+PC 와 Board 는 UART 1, Board 와 Bluetooth(Smartphone) 은 UART 2 를 이용하여 연결한다. 
+
+PC 가 보낸 UART1 RX 를 BOARD 받아 UART2 TX 를 Bluetooth 에게 보낸다. 
+그리고 Bluetooth 에서 보낸 UART2 RX 를 BOARD 가 받아서 UART TX 를 PC 에게 보낸다.  
+
+<br>
 
 ## 개발보드와 FB755AC 연결(납땜) 방법
 
 ![](../images/pre_exp/soldering.jpg)
 
-
-최대한 이쁘게 납땜해야 나중에 문제 생겼을 때 파악하기 쉽다.
-
--------------
-
-납땜이 끝나고 멀티미터로 연결이 되었는지 전부 확인.
-
-## FB755AC 설정
-
 ```
-- 2, 3, 4번 : 사용 X 
-- 1, 6번 : LED 와 연결 (LED의 다리 긴쪽이 (+))
-- 12번 : VCC 엔 보드 VCC 연결 
-- 9번 : RX 와 보드의 PA2 또는 PA3 연결
-- 8번 : TX 와 보드의 PA2 또는 PA3 연결 
-- 5번 : 점프선으로 연결하여, 기본 low 값으로 점프선을 high 부분에 연결할 수 있도록 만든다. 
+- 1, 6 번 : LED 와 연결
+- 2, 3, 4, 10, 11 번 : 사용 X
+ 5 번 : 직접적으로 연결하지 않고 점프 선을 연결하여 값이 low/high 로 변경 가능 하도록 만듬
+- 5, 12 번 : VCC(3.3V) 와 연결
+- 8 번 : RX 인 PA3 과 연결
+- 9 번 : TX 인 PA2 와 연결
+- LED 의 (+)와 저항을 연결
 ```
+
+USART 1 은 baud rate를 57600, USART 2 는 baud rate 를 9600 으로 설정한다. 
+
+5 번 port 가 high 가 되면 설정 모드, low 가 되면 설정 모드 해제를 뜻한다. 
+
+납땜 시, 선끼리 교차되지 않게 납땜한다. 
 
 <br>
-USART1 은 baud rate 57600 
-USART2 은 baud rate 9600
-
-5번 포트가 설정할지 안할지 설정하는 건데, 점프선으로 간단하게 실험 가능하도록 세팅 해야함.
-5번 포트가 high 로 연결 되어있으면 설정모드고 low 면 설정모드가 아님!!  
-
+<br>
 
 ## 실습 과정
 
-코드 작성 후, 보드 전원을 인가 시키는 순간 터미널(putty) 에 설정하는 화면이 뜨는게 정상.
+```cpp
 
-그리고 AT 명령어를 전송하면서 제대로 통신이 되고 있음을 확인한다.
+![](../images/pre_exp/usart2.PNG)
 
-또한, Configuration 모드를 해제하여 스마트폰과 채팅이 되고 있는지 확인한다.  
+datasheet 를 참고하면, USART 2 는 APB1 에 속해있다. 
+
+<br>
+
+![](../images/pre_exp/usart2_tx_rx.PNG)
+
+USART 2 의 TX, RX 의 PIN 은 각각 PA2, PA3 이다.
+
+<br>
+<br>
+
+이를 참고하여 코드를 USART 2 에 대한 코드를 짜면 다음과 같다.
+
+//USAR2 init
+void USART2_Init(void)
+{
+  USART_InitTypeDef usart2_init_struct;
+  GPIO_InitTypeDef gpioa_init_struct;
+  NVIC_InitTypeDef NVIC_InitStructure;
+
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+
+  // tx, rx 설정
+  gpioa_init_struct.GPIO_Pin = GPIO_Pin_2;
+  gpioa_init_struct.GPIO_Speed = GPIO_Speed_50MHz;
+  gpioa_init_struct.GPIO_Mode = GPIO_Mode_AF_PP;
+  GPIO_Init(GPIOA, &gpioa_init_struct);
+
+  gpioa_init_struct.GPIO_Pin = GPIO_Pin_3;
+  gpioa_init_struct.GPIO_Speed = GPIO_Speed_50MHz;
+  gpioa_init_struct.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIOA, &gpioa_init_struct);
+
+  usart2_init_struct.USART_BaudRate = 9600;
+  usart2_init_struct.USART_WordLength = USART_WordLength_8b;
+  usart2_init_struct.USART_StopBits = USART_StopBits_1;
+  usart2_init_struct.USART_Parity = USART_Parity_No;
+  usart2_init_struct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+  usart2_init_struct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  USART_Init(USART2, &usart2_init_struct);
+  USART_Cmd(USART2, ENABLE);
+  USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+
+  NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+}
+
+//USART 2 Handler
+void USART2_IRQHandler(void) {
+	unsigned char d;
+	while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET)
+		;
+
+	d = (unsigned char) USART_ReceiveData(USART2);
+	USART_SendData(USART1, d);
+	USART_ClearITPendingBit(USART2, USART_IT_RXNE);
+```
+
+<br>
+
+지난 실험의 interrupt 코드를 활용하여 UART 2 에 대한 설정, NVIC 레지스터 설정, RX, TX PIN 설정을 한다.  
+
+<br>
+
+![](../images/pre_exp/putty.png)
+
+코드 작성 후, Putty 를 다음과 같이 설정한 뒤, 보드 전원 인가 시, 터미널(Putty) 에 Configuration 하는 화면이 뜬다.
+
+<br>
+
+![](images/pre_exp/result.PNG)
+
+Configuration 화면을 확인한 뒤, AT 명령어를 이용하여 제대로 통신이 되는지 확인한다. 
+
+그 후, Configuration 모드를 해제하여 chatting APP 을 실행하여 자신의 Bluetooth 모듈이 검색되면 연결한 후 채팅 가능한지 확인한다. 
