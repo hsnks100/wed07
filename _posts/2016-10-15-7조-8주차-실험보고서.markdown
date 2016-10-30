@@ -287,7 +287,7 @@ Configuration 화면을 확인한 뒤, AT 명령어를 이용하여 제대로 �
 
 # 전체 소스
 
-```cpp
+``` cpp
 #include "stm32f10x.h"
 
 void Delay(int d){
