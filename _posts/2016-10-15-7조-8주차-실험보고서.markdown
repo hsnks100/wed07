@@ -203,7 +203,7 @@ USART 2 의 TX, RX 의 PIN 은 각각 PA2, PA3 이다.
 
 이를 참고하여 코드를 USART 2 에 대한 코드를 짜면 다음과 같다.
 
-```cpp
+``` cpp
 //USAR2 init
 
 void USART2_Init(void)
