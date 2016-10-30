@@ -252,6 +252,8 @@ void USART2_IRQHandler(void) {
 	d = (unsigned char) USART_ReceiveData(USART2);
 	USART_SendData(USART1, d);
 	USART_ClearITPendingBit(USART2, USART_IT_RXNE);
+}
+
 ```
 
 <br>
