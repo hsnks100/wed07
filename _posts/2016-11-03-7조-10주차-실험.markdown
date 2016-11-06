@@ -8,7 +8,7 @@ ADC 의 원리를 이해하고 TFT LCD 를 제어한다.
 
 ## TFT LCD
 
-### LDC 구조
+### LCD 구조
 
 LCD 는 구동 방식에 따라 Passive matrix 구조와 Active matrix 구조로 나뉜다. 
 
@@ -57,6 +57,7 @@ TFT LCD 는 사용하는 interface 에 따라 Timing 특성이 바뀐다.
 이 중 이번 실험에서 Parallel 8080 series Interface 를 사용한다. 
  
 <br>
+
 #### Parallel 8080 series Interface 의 제어신호
 
 	CS (Chip Select) : low 일 때, chip이 동작되도록 하는 신호
