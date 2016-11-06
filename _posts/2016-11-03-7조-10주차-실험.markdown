@@ -48,11 +48,11 @@ TFT LCD 는 사용하는 interface 에 따라 Timing 특성이 바뀐다.
 
 * Interface 종류
 	
-1) Serial Peripheral Interface : master/slave 방식의 통신. Clock 을 동기화 한 후, 8 bits 의 데이터를 통신
+- Serial Peripheral Interface : master/slave 방식의 통신. Clock 을 동기화 한 후, 8 bits 의 데이터를 통신
 
-2) Parallel 6800 series Interface : read/write(R/W) 와 enable(E) 제어신호를 사용하여 read, write 를 제어 
+- Parallel 6800 series Interface : read/write(R/W) 와 enable(E) 제어신호를 사용하여 read, write 를 제어 
 	
-3) Parallel 8080 series Interface : read(RD), write(WR) 제어신호를 사용하여 read, write 를 제어
+- Parallel 8080 series Interface : read(RD), write(WR) 제어신호를 사용하여 read, write 를 제어
 	
 이 중 이번 실험에서 Parallel 8080 series Interface 를 사용한다. 
  
@@ -60,13 +60,13 @@ TFT LCD 는 사용하는 interface 에 따라 Timing 특성이 바뀐다.
 
 #### Parallel 8080 series Interface 의 제어신호
 
-	CS (Chip Select) : low 일 때, chip이 동작되도록 하는 신호
+-	CS (Chip Select) : low 일 때, chip이 동작되도록 하는 신호
 	
-	RS = D/C (Data/Command) : low 시, command 전송. high 시, data 전송
+-	RS = D/C (Data/Command) : low 시, command 전송. high 시, data 전송
 	
-	WR (Write) : low 에서 high 로 변할 때, data 를 display RAM 에 write 한다. 
+-	WR (Write) : low 에서 high 로 변할 때, data 를 display RAM 에 write 한다. 
 	
-	RD (Read) : low 에서 high 로 변할 때, display RAM 에서 data 를 read 한다. 
+-	RD (Read) : low 에서 high 로 변할 때, display RAM 에서 data 를 read 한다. 
 
 <br>
 <br>
@@ -122,10 +122,17 @@ TFT LCD 는 사용하는 interface 에 따라 Timing 특성이 바뀐다.
 
 #### ADC 사용 목적
 
+물리적 양을 측정하는 센서의 값들은 Analog 값이다. 예를 들면 소리의 크기, 빛의 양, 압력 등이 이에 속한다. 이 값들을 쓰기 위해선 디지털로 샘플링을 해야하는데, 이를 ADC 라고 한다.
+
+
+
 
 
 <br>	
+
 # 실험 방법
+
+
 
 
 # 결론
