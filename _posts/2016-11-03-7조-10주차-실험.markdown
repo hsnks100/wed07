@@ -129,20 +129,108 @@ TFT LCD 는 사용하는 interface 에 따라 Timing 특성이 바뀐다.
 
 #### ADC 사용 목적
 
-물리적 양을 측정하는 센서의 값들은 Analog 값이다. 예를 들면 소리의 크기, 빛의 양, 압력 등이 이에 속한다. 이 값들을 쓰기 위해선 디지털로 샘플링을 해야하는데, 이를 ADC 라고 한다.
-
-
-
+물리적 양을 측정하는 센서의 값들은 Analog 값이다. 예를 들면 소리의 크기, 빛의 양, 압력 등이 이에 속한다. 이 값들을 쓰기 위해선 디지털로 샘플링을 해야하는데, 이를 ADC 라고 한다.  
 
 
 <br>	
 
 # 실험 방법
 
+그림과 같이 TFT-LCD 를 보드에 결합한다.
+
+그리고 조도센서를 보드에 납땜한다. 출력가 입력포트를 주의해서 납땜해야 한다. 
+
+lcd.h, lcd.c, touch.h, touch.c, font.h, font.c 를 라이브러리에 추가한다.
+
+```
+
+LR_IROM1 0x08000000 0x00080000  {    ; load region size_region
+  ER_IROM1 0x08000000 0x00080000  {  ; load address = execution address
+   *.o(RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+  RW_IRAM1 0x20000000 0x00008000  {  ; RW data
+   .ANY (+RW +ZI)
+  }
+}
+```
+
+플래시 업로드를 위한 sct 파일을 위와 같이 바꿔준다. 지금까지는 0x00008000 으로 실험했다. 그 이유는 이전보다 더 많은 라이브러리를 사용하기 때문에, 더 넓은 메모리 공간이 필요해서 확장한 것이다.
+
+만약 sct 파일을 이전과 같이 0x00008000 처럼 사용한다면, no space 에러가 발생한다. 
+
+
+그림과 같이 타이밍 그래프를 참고하여 lcd.c 의 LCD_WR_REG, LCD_WR_DATA, LCD_ReadReg, LCD_WriteReg 함수를 작성한다.
+
+``` cpp
+
+void LCD_WR_REG(uint16_t LCD_Reg) {
+	GPIO_SetBits(GPIOD, GPIO_Pin_15); //LCD_RD(1)
+	GPIO_ResetBits(GPIOD, GPIO_Pin_13); //LCD_RS(0);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_6); //LCD_CS(0);
+	GPIO_ResetBits(GPIOD, GPIO_Pin_14); //LCD_WR(0);
+	DataToWrite(LCD_Reg);
+	GPIO_SetBits(GPIOC, GPIO_Pin_6); //LCD_CS(1);
+	GPIO_SetBits(GPIOD, GPIO_Pin_14); //LCD_WR(1);
+}
+
+void LCD_WR_DATA(uint16_t LCD_Data) {
+	GPIO_SetBits(GPIOD, GPIO_Pin_15); //LCD_RD(1)
+	GPIO_SetBits(GPIOD, GPIO_Pin_13); //LCD_RS(1);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_6); //LCD_CS(0);
+	GPIO_ResetBits(GPIOD, GPIO_Pin_14); //LCD_WR(0);
+	DataToWrite(LCD_Data);
+	GPIO_SetBits(GPIOC, GPIO_Pin_6); //LCD_CS(1);
+	GPIO_SetBits(GPIOD, GPIO_Pin_14); //LCD_WR(1);
+} 
+
+
+/* LCD ReadReg */
+uint16_t LCD_ReadReg(uint16_t LCD_Reg)
+{
+	uint16_t temp;
+	GPIOF->CRL=0x88888888;
+	GPIOF->CRH=0x88888888;
+
+	//LCD_WriteReg(LCD_Reg);
+	GPIO_SetBits(GPIOD, GPIO_Pin_14);//LCD_WR(1);
+	GPIO_SetBits(GPIOD, GPIO_Pin_13); //LCD_RS(1);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_6); //LCD_CS(0);
+	GPIO_ResetBits(GPIOD, GPIO_Pin_15);//LCD_RD(0);
+	temp = DataToRead();
+	GPIO_SetBits(GPIOC, GPIO_Pin_6);//LCD_CS(1);
+	GPIO_SetBits(GPIOD, GPIO_Pin_15);//LCD_RD(1);
+
+	//////////////////////////////
+	GPIOF->CRL=0x33333333;
+	GPIOF->CRH=0x33333333;
+	return temp;				    	 	
+}
+
+
+void LCD_WriteReg(uint16_t LCD_Reg ,uint16_t LCD_RegValue)
+{
+	LCD_WR_REG(LCD_Reg);
+	LCD_WR_DATA(LCD_RegValue);
+}
+
+```
 
 
 
 # 결론
+
+TFT-LCD 를 동작시키고, 화면에 글자와 도형을 표시하고 터치를 입력받아서 처리하는 실험이었다. 이 실험의 경우 Term-Project 에서 매우 중요하게 쓰일것 같다. 특히 스캐터 파일의 메모리 공간을 크게 잡는게 인상적이었다.
+
+조도센서의 값을 lcd 에 표시해봤는데 생각보다 민감한 빛의 변화를 감지하지 못했다. 이는 하드웨어적 문제인것 같다. 
+
+또한 lcd.c 내부를 살펴보면서 Touch_GetXY 내부에서 T_INT 의 역할을 알게됐고, 다른 기본적인 draw 함수들도 매우 간단한 wrapper function 에 불과하다는것을 알게 됐다. 우리가 곧 구현할 키패드 구현에도 크게 작용할 것 같다.
+
+하지만 이 실험에서 해결못한 이전에 찍었던 점을 지워주는 방법에 대해서는 좀 고민해봐야할것 같다. draw fill 을 통해서 이전 영역을 지워주면 될것 같았는데 잘 안됐다. 아마 내부적으로 좌표의 범위의 문제가 있어서 잘못된 동작으로 빠진것으로 추정된다.  
+
+
+
 
 
 # 전체 소스
