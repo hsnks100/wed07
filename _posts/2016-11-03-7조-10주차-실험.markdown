@@ -7,8 +7,7 @@ comments: true
 ---
 # 개요
 
-ADC 의 원리를 이해하고 TFT LCD 를 제어한다. 
-
+ADC 의 원리를 이해하고 TFT LCD 를 제어한다.  
 <br>
 
 # 기본 개념 (배경 지식)
