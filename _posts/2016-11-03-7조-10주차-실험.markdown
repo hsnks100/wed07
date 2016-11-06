@@ -1,3 +1,10 @@
+---
+layout: post
+author: 한성희, 이호욱, 한경수
+date: 2016-10-14 17:48 +0900
+tags: 
+comments: true
+---
 # 개요
 
 ADC 의 원리를 이해하고 TFT LCD 를 제어한다. 
