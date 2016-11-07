@@ -215,6 +215,10 @@ LR_IROM1 0x08000000 0x00080000  {    ; load region size_region
 
 <br>
 
+![](../images/experiment10/WC.jpg)
+
+![](../images/experiment10/RC.jpg)
+
 그림과 같이 타이밍 그래프를 참고하여 lcd.c 의 LCD_WR_REG, LCD_WR_DATA, LCD_ReadReg, LCD_WriteReg 함수를 작성한다.
 
 ``` cpp
