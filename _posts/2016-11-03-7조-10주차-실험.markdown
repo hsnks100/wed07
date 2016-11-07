@@ -48,6 +48,7 @@ TFT LCD 는 크게 비정질 실리콘 등의 반도체 박막이 형성되어 �
 아래 유리기판 밑의 백라이트 유닛에서 빛을 공급하면 빛은 액정의 배열을 따라 지나가 윗 유리기판의 Color Filter 를 통해 나가면서 색을 표한하게 된다. 
 
 <br>
+
 ### TFT LCD Timing characteristics
 
 TFT LCD 는 사용하는 interface 에 따라 Timing 특성이 바뀐다. 
@@ -111,6 +112,7 @@ TFT LCD 는 사용하는 interface 에 따라 Timing 특성이 바뀐다.
 digital 신호는 analog 신호보다 명확하고 규칙적이므로 손실 없이 data 를 저장 또는 이용할 수 있다. 
 
 <br>
+
 ### ADC (Analog to Digital Conversion)
 
 ![](../images/experiment10/adc.jpg)
