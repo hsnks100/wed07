@@ -102,7 +102,18 @@ TFT LCD 는 사용하는 interface 에 따라 Timing 특성이 바뀐다.
 <br>
 <br>
 
+### ADC & DAC
+
+![](../images/experiment10/adc_dac.jpg)
+
+컴퓨터는 2진 digital data 를 사용하므로 컴퓨터가 신호를 감지할 수 있도록 analog 신호를 digital 신호로 변환한다. 
+
+digital 신호는 analog 신호보다 명확하고 규칙적이므로 손실 없이 data 를 저장 또는 이용할 수 있다. 
+
+<br>
 ### ADC (Analog to Digital Conversion)
+
+![](../images/experiment10/adc.jpg)
 
 온도, 습도, 조도 등의 analog 물리량을 digital 신호로 변환하는 것. 
 
@@ -130,15 +141,56 @@ TFT LCD 는 사용하는 interface 에 따라 Timing 특성이 바뀐다.
 
 물리적 양을 측정하는 센서의 값들은 Analog 값이다. 예를 들면 소리의 크기, 빛의 양, 압력 등이 이에 속한다. 이 값들을 쓰기 위해선 디지털로 샘플링을 해야하는데, 이를 ADC 라고 한다.  
 
+<br>
+
+#### ADC 사용 예시 
+
+- 조도 센서
+
+![](../images/experiment10/sensor.JPG)
+
+센서에서 전달받은 analog 신호를 ADC 가 digital 신호로 바꿔준다. 
+
+<br>
+- Single ADC Block diagram
+
+![](../images/experiment10/adc_datasheet.jpg)
+
+실험 보드에는 2개의 12bits ADC 가 존재한다. 각 ADC 는 16 개의 체널을 가진다. 
+
+외부에서 들어온 신호를 ADC 를 통해 ADC interrupt 를 발생시킨다. 
+
+<br>
+
+### DAC (Digital to Analog Conversion)
+
+![](../images/experiment10/dat.JPG)
+
+ADC 의 역방향 처리 과정으로 0과 1로 표현되는 digital 신호를 사람이 들을 수 있는 analog 신호로 변환시켜주는 장치이다. 
+
+정해진 bit 수로 인해 정밀도는 제한적이다.
+
+#### D/A Converter 의 과정
+
+1) 증폭기(Amplifier)를 통해 n 개의 digital 신호를 analog 신호의 크기로 바꾸어 스텝 신호를 출력
+
+2) 필터 회로를 사용하여 출력된 스텝 신호를 원래 신호에 가깝게 복원
 
 <br>	
+<br>
 
 # 실험 방법
 
+![](../images/experiment10/LCD.jpg)
+
 그림과 같이 TFT-LCD 를 보드에 결합한다.
+
+<br>
+![](../images/experiment10/soldering.jpg)
 
 그리고 조도센서를 보드에 납땜한다. 출력가 입력포트를 주의해서 납땜해야 한다. 
 
+<br>
 lcd.h, lcd.c, touch.h, touch.c, font.h, font.c 를 라이브러리에 추가한다.
 
 ```
@@ -216,7 +268,14 @@ void LCD_WriteReg(uint16_t LCD_Reg ,uint16_t LCD_RegValue)
 
 ```
 
+<br>
 
+![](../images/experiment10/LCD_output.jpg)
+
+프로그램을 돌리면 다음과 같이 지정 위치의 좌표와 조도 값, 아래의 버튼을 이용하여 LED 를 조작할 수 있다. 
+
+<br>
+<br>
 
 # 결론
 
