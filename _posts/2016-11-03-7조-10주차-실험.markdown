@@ -164,7 +164,7 @@ digital 신호는 analog 신호보다 명확하고 규칙적이므로 손실 없
 
 ### DAC (Digital to Analog Conversion)
 
-![](../images/experiment10/dat.JPG)
+![](../images/experiment10/dac.JPG)
 
 ADC 의 역방향 처리 과정으로 0과 1로 표현되는 digital 신호를 사람이 들을 수 있는 analog 신호로 변환시켜주는 장치이다. 
 
@@ -211,6 +211,7 @@ LR_IROM1 0x08000000 0x00080000  {    ; load region size_region
 
 만약 sct 파일을 이전과 같이 0x00008000 처럼 사용한다면, no space 에러가 발생한다. 
 
+<br>
 
 그림과 같이 타이밍 그래프를 참고하여 lcd.c 의 LCD_WR_REG, LCD_WR_DATA, LCD_ReadReg, LCD_WriteReg 함수를 작성한다.
 
@@ -269,6 +270,7 @@ void LCD_WriteReg(uint16_t LCD_Reg ,uint16_t LCD_RegValue)
 ```
 
 <br>
+<br>
 
 ![](../images/experiment10/LCD_output.jpg)
 
@@ -285,7 +287,8 @@ TFT-LCD 를 동작시키고, 화면에 글자와 도형을 표시하고 터치�
 
 또한 lcd.c 내부를 살펴보면서 Touch_GetXY 내부에서 T_INT 의 역할을 알게됐고, 다른 기본적인 draw 함수들도 매우 간단한 wrapper function 에 불과하다는것을 알게 됐다. 우리가 곧 구현할 키패드 구현에도 크게 작용할 것 같다.
 
-하지만 이 실험에서 해결못한 이전에 찍었던 점을 지워주는 방법에 대해서는 좀 고민해봐야할것 같다. draw fill 을 통해서 이전 영역을 지워주면 될것 같았는데 잘 안됐다. 아마 내부적으로 좌표의 범위의 문제가 있어서 잘못된 동작으로 빠진것으로 추정된다.  
+하지만 이 실험에서 해결못한 이전에 찍었던 점을 지워주는 방법에 대해서는 좀 고민해봐야할것 같다.
+draw fill 을 통해서 이전 영역을 지워주면 될것 같았는데 잘 안됐다. 아마 내부적으로 좌표의 범위의 문제가 있어서 잘못된 동작으로 빠진것으로 추정된다.  
 
 
 
