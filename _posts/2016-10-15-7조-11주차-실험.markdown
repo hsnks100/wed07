@@ -15,7 +15,7 @@ Timer 의 원리와 동작 방식을 이하고 Timer 의 주기에 따라 Interr
 
 <br>
 
-##Flash Debugging
+## Flash Debugging
 
 flash 에 load 되어있는 프로그래밍 디버깅
 
@@ -46,18 +46,108 @@ flash 에 load 되어있는 프로그래밍 디버깅
 
 # 실험 방법
 
+미션은 3가지다.
+
+1. 초시계를 1초 간격으로 LCD 에 출력
+2. 3초 동안의 버튼 입력 횟수를 3초 간격으로 LCD 에 출력.
+3. 5초 동안의 조도센서 최댓값을 5초 간격으로 LCD 에 출력.
+
+10주차와 마찬가지로 TFT-LCD 를 보드에 결합시킨다.
+
+그리고 1초에 한번씩 호출되는 타이머를 써야하는데 이를 세팅하는 코드는 다음과 같다.
+
+
+``` cpp
+
+void init_Timer2() {
+  NVIC_InitTypeDef NVIC_InitStructure; // for interreupt
+  TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure; // timerbase...
+
+  /* TIM2 Clock Enable */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+
+  /* Enable TIM2 Global Interrupt */
+  NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+  /* TIM2 Initialize */
+  TIM_TimeBaseStructure.TIM_Period = 1200;
+  TIM_TimeBaseStructure.TIM_Prescaler = 60000;
+  //계산방법 : 1/72mhz * 1200 * 60000
+  TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+  TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+
+  /* TIM2 Enale */
+  TIM_ARRPreloadConfig(TIM2, ENABLE);
+  TIM_Cmd(TIM2, ENABLE);
+  TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE); // interrupt enable
+}
+```
+
+
+위 코드를 통해 1초에 한번씩 호출되는 함수가 TIM2_IRQ 로 설정이 된다. (1/72Mhz) * 1200 * 60000 = 1
+
+``` cpp
+void TIM2_IRQHandler(void) {
+  t1++;
+  t2++;
+  t3++;
+  if (button_adder >= 4)
+    button_adder = 4;
+  button_count += button_adder;
+  button_adder = 0;
+  TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+  //Clears the TIMx's interrupt pending bits.
+}
+```
+
+인터럽트에서는 오래걸리는 일을 하면 안되기 때문에, 단순히 초를 카운트하는 기능만 넣는다. 그리고 버튼 자체의 문제점때문에 여러번 입력이 되는 경우엔 1초에 최대 4번만 누르게 한다.
+
+main 에서의 while(1) 를 통해 인터럽트에서 카운팅한 초 값을 이용해서 TFT-LCD 에 우리가 얻은 값을 표시한다. 코드는 아래와 같다.
+
+
+``` cpp
+while (1) {
+  sprintf(sec, "%d", t1);
+  LCD_ShowString(1, 1, sec, BLACK, WHITE);
+  if (t2 % 4 == 0) {
+    col++;
+    LCD_ShowNum(200, 100, button_count, 4, col % 2 == 0 ? BLUE : RED,
+        WHITE);
+    button_count = 0;
+    t2 = 1;
+  }
+
+  if (t3 % 6 == 0) {
+
+    LCD_ShowNum(200, 1, jodo_max, 4, BLACK, WHITE);
+    jodo_max = 0;
+    t3 = 1;
+  }
+}
+```
+
+
 <br>
 
 # 실험 결과
+
 
 <br>
 
 # 결론
 
+
 <br>
 <br>
 
 # 전체 코드
+
+``` cpp
 
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
@@ -249,3 +339,4 @@ int main() {
 	}
 }
 
+```
