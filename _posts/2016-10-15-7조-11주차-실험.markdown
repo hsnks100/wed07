@@ -15,7 +15,7 @@ Timer 의 원리와 동작 방식을 이하고 Timer 의 주기에 따라 Interr
 
 <br>
 
-##Flash Debugging
+## Flash Debugging
 
 flash 에 load 되어있는 프로그래밍 디버깅
 
@@ -114,18 +114,116 @@ prescaler 와 period 의 값은 0 부터 시작하므로 주고자 하는 값에
 
 # 실험 방법
 
+미션은 3가지다.
+
+1. 초시계를 1초 간격으로 LCD 에 출력
+2. 3초 동안의 버튼 입력 횟수를 3초 간격으로 LCD 에 출력.
+3. 5초 동안의 조도센서 최댓값을 5초 간격으로 LCD 에 출력.
+
+10주차와 마찬가지로 TFT-LCD 를 보드에 결합시킨다.
+
+그리고 1초에 한번씩 호출되는 타이머를 써야하는데 이를 세팅하는 코드는 다음과 같다.
+
+
+``` cpp
+
+void init_Timer2() {
+  NVIC_InitTypeDef NVIC_InitStructure; // for interreupt
+  TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure; // timerbase...
+
+  /* TIM2 Clock Enable */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+
+  /* Enable TIM2 Global Interrupt */
+  NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+  /* TIM2 Initialize */
+  TIM_TimeBaseStructure.TIM_Period = 1200;
+  TIM_TimeBaseStructure.TIM_Prescaler = 60000;
+  //계산방법 : 1/72mhz * 1200 * 60000
+  TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+  TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+
+  /* TIM2 Enale */
+  TIM_ARRPreloadConfig(TIM2, ENABLE);
+  TIM_Cmd(TIM2, ENABLE);
+  TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE); // interrupt enable
+}
+```
+
+
+위 코드를 통해 1초에 한번씩 호출되는 함수가 TIM2_IRQ 로 설정이 된다. (1/72Mhz) * 1200 * 60000 = 1
+
+``` cpp
+void TIM2_IRQHandler(void) {
+  t1++;
+  t2++;
+  t3++;
+  if (button_adder >= 4)
+    button_adder = 4;
+  button_count += button_adder;
+  button_adder = 0;
+  TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+  //Clears the TIMx's interrupt pending bits.
+}
+```
+
+인터럽트에서는 오래걸리는 일을 하면 안되기 때문에, 단순히 초를 카운트하는 기능만 넣는다. 그리고 버튼 자체의 문제점때문에 여러번 입력이 되는 경우엔 1초에 최대 4번만 누르게 한다.
+
+main 에서의 while(1) 를 통해 인터럽트에서 카운팅한 초 값을 이용해서 TFT-LCD 에 우리가 얻은 값을 표시한다. 코드는 아래와 같다.
+
+
+``` cpp
+while (1) {
+  sprintf(sec, "%d", t1);
+  LCD_ShowString(1, 1, sec, BLACK, WHITE);
+  if (t2 % 4 == 0) {
+    col++;
+    LCD_ShowNum(200, 100, button_count, 4, col % 2 == 0 ? BLUE : RED,
+        WHITE);
+    button_count = 0;
+    t2 = 1;
+  }
+
+  if (t3 % 6 == 0) {
+
+    LCD_ShowNum(200, 1, jodo_max, 4, BLACK, WHITE);
+    jodo_max = 0;
+    t3 = 1;
+  }
+}
+```
+
+
 <br>
 
 # 실험 결과
+
+그림과 같이 왼쪽 상단에는 초시계가 카운팅 되고, 오른쪽 상단엔 조도센서의 값을 가져와서 값을 출력하게 되었다.
+
+그리고 3초기준으로 초기화는 버튼클릭 카운터가 작동되는 모습을 볼 수 있다.
+
 
 <br>
 
 # 결론
 
+stm32 보드의 내부 타이머를 이용하는 방법을 알게 되었다. clk 수와 period 및 prescaler 를 이용하여 우리가 원하는 타이머의 주기를 쓸 수 있게 됐다. 
+
+처음엔 인터럽트 내부에서 오래걸리는 (I/O 등)작업을 하면서 문제를 해결했는데, 이럴 경우 인터럽트 순서등이 꼬일 수 있다는 것을 경험했고, 그로 인해 interrupt 함수는 간결하게 큰일을 하지 않도록 짜야했다. 
+
 <br>
 <br>
 
 # 전체 코드
+
+``` cpp
+
 
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
@@ -139,181 +237,183 @@ uint16_t jodo_max, button_count, button_adder;
 int t1, t2 = 1, t3 = 1;
 
 void TIM2_IRQHandler(void) {
-	t1++;
-	t2++;
-	t3++;
-	if(button_adder >= 4)
-		button_adder = 4;
-	button_count += button_adder;
-	button_adder = 0;
-	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-	//Clears the TIMx's interrupt pending bits.
+  t1++;
+  t2++;
+  t3++;
+  if (button_adder >= 4)
+    button_adder = 4;
+  button_count += button_adder;
+  button_adder = 0;
+  TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+  //Clears the TIMx's interrupt pending bits.
 }
 
 void EXTI15_10_IRQHandler(void) {
-	if(EXTI_GetITStatus(EXTI_Line11) != RESET)
-		button_adder++;
-	EXTI_ClearITPendingBit(EXTI_Line11);
+  if (EXTI_GetITStatus(EXTI_Line11) != RESET)
+    button_adder++;
+  EXTI_ClearITPendingBit(EXTI_Line11);
 }
 
 void init_Timer2() {
-	NVIC_InitTypeDef NVIC_InitStructure; // for interreupt
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure; // timerbase...
+  NVIC_InitTypeDef NVIC_InitStructure; // for interreupt
+  TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure; // timerbase...
 
-	/* TIM2 Clock Enable */
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+  /* TIM2 Clock Enable */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 
-	/* Enable TIM2 Global Interrupt */
-	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
+  /* Enable TIM2 Global Interrupt */
+  NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
 
-	/* TIM2 Initialize */
-	TIM_TimeBaseStructure.TIM_Period = 1200;
-	TIM_TimeBaseStructure.TIM_Prescaler = 60000;
-	//계산방법 : 1/72mhz * 1200 * 60000
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+  /* TIM2 Initialize */
+  TIM_TimeBaseStructure.TIM_Period = 1200;
+  TIM_TimeBaseStructure.TIM_Prescaler = 60000;
+  //계산방법 : 1/72mhz * 1200 * 60000
+  TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+  TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
 
-	/* TIM2 Enale */
-	TIM_ARRPreloadConfig(TIM2, ENABLE);
-	TIM_Cmd(TIM2, ENABLE);
-	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE); // interrupt enable
+  /* TIM2 Enale */
+  TIM_ARRPreloadConfig(TIM2, ENABLE);
+  TIM_Cmd(TIM2, ENABLE);
+  TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE); // interrupt enable
 }
 
 void delay(int i) {
-	int j;
-	for (j = 0; j <= i * 100000; j++)
-		;
+  int j;
+  for (j = 0; j <= i * 100000; j++)
+    ;
 }
 
 void set_ENABLE(void) {
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);	 // interrupt
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);     // RCC GPIO E
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);     // RCC GPIO C
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);     // RCC GPIO D
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);	 // ADC1
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);	 // interrupt
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);     // RCC GPIO E
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);     // RCC GPIO C
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);     // RCC GPIO D
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);	 // ADC1
 }
 
 void set_PC1(void) {
-	GPIO_InitTypeDef GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
 }
 
 void set_ADC(void) {
-	ADC_InitTypeDef ADC_InitStructure;
-	ADC_DeInit(ADC1);
-	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
-	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
-	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
-	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
-	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-	ADC_InitStructure.ADC_NbrOfChannel = 1;
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_11, 1,
-			ADC_SampleTime_239Cycles5);
-	ADC_Init(ADC1, &ADC_InitStructure);
+  ADC_InitTypeDef ADC_InitStructure;
+  ADC_DeInit(ADC1);
+  ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
+  ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+  ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
+  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+  ADC_InitStructure.ADC_NbrOfChannel = 1;
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_11, 1,
+      ADC_SampleTime_239Cycles5);
+  ADC_Init(ADC1, &ADC_InitStructure);
 }
 
 void set_NVIC(void) {
-	NVIC_InitTypeDef NVIC_InitStructure;
-	NVIC_InitStructure.NVIC_IRQChannel = ADC1_2_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
-	ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
-	ADC_Cmd(ADC1, ENABLE);
+  NVIC_InitTypeDef NVIC_InitStructure;
+  NVIC_InitStructure.NVIC_IRQChannel = ADC1_2_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
+  ADC_Cmd(ADC1, ENABLE);
 }
 
 void ADC_start(void) {
-	ADC_ResetCalibration(ADC1);
-	while (ADC_GetResetCalibrationStatus(ADC1))
-		;
-	ADC_StartCalibration(ADC1);
-	while (ADC_GetCalibrationStatus(ADC1))
-		;
-	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
+  ADC_ResetCalibration(ADC1);
+  while (ADC_GetResetCalibrationStatus(ADC1))
+    ;
+  ADC_StartCalibration(ADC1);
+  while (ADC_GetCalibrationStatus(ADC1))
+    ;
+  ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 }
 
 void ADC1_2_IRQHandler(void) {
-	uint16_t input;
-	uint16_t jodo;
+  uint16_t input;
+  uint16_t jodo;
 
-	input = ADC_GetConversionValue(ADC1);
-	jodo = (double) input;
+  input = ADC_GetConversionValue(ADC1);
+  jodo = (double) input;
 
-	if (jodo_max < jodo) {
-		jodo_max = jodo;
-	}
-	ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
+  if (jodo_max < jodo) {
+    jodo_max = jodo;
+  }
+  ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
 }
 
 void EXTI11_Config(void) {
-	GPIO_InitTypeDef GPIO_InitStructure;
-	EXTI_InitTypeDef EXTI_InitStructure;
-	NVIC_InitTypeDef NVIC_InitStructure;
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
+  GPIO_InitTypeDef GPIO_InitStructure;
+  EXTI_InitTypeDef EXTI_InitStructure;
+  NVIC_InitTypeDef NVIC_InitStructure;
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
-	GPIO_Init(GPIOD, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+  GPIO_Init(GPIOD, &GPIO_InitStructure);
 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 
-	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource11);
+  GPIO_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource11);
 
-	EXTI_InitStructure.EXTI_Line = EXTI_Line11;
-	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-	EXTI_Init(&EXTI_InitStructure);
+  EXTI_InitStructure.EXTI_Line = EXTI_Line11;
+  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+  EXTI_Init(&EXTI_InitStructure);
 
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
+  NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
 }
 
 int main() {
-	char sec[100];
-	int col = 0;
-	SystemInit();
-	set_ENABLE();
-	set_PC1();
-	set_ADC();
-	set_NVIC();
-	LCD_Init();
-	init_Timer2();
-	LCD_Clear(WHITE);
-	ADC_start();
-	EXTI11_Config();
+  char sec[100];
+  int col = 0;
+  SystemInit();
+  set_ENABLE();
+  set_PC1();
+  set_ADC();
+  set_NVIC();
+  LCD_Init();
+  init_Timer2();
+  LCD_Clear(WHITE);
+  ADC_start();
+  EXTI11_Config();
 
-	while (1) {
-		sprintf(sec, "%d", t1);
+  while (1) {
+    sprintf(sec, "%d", t1);
+    LCD_ShowString(1, 1, sec, BLACK, WHITE);
+    if (t2 % 4 == 0) {
+      col++;
+      LCD_ShowNum(200, 100, button_count, 4, col % 2 == 0 ? BLUE : RED,
+          WHITE);
+      button_count = 0;
+      t2 = 1;
+    }
 
-		LCD_ShowString(1, 1, sec, BLACK, WHITE);
-		if(t2 % 4 == 0){
-			col++;
-			LCD_ShowNum(200, 100, button_count, 4, col % 2 == 0 ? BLUE : RED, WHITE);
-			button_count = 0;
-			t2 = 1;
-		}
+    if (t3 % 6 == 0) {
 
-
-		if (t3 % 6 == 0) {
-
-			LCD_ShowNum(200, 1, jodo_max, 4, BLACK, WHITE);
-			jodo_max = 0;
-			t3 = 1;
-		}
-
-	}
+      LCD_ShowNum(200, 1, jodo_max, 4, BLACK, WHITE);
+      jodo_max = 0;
+      t3 = 1;
+    }
+  }
 }
 
+/*
+   flash load C:\Users\USER\Desktop\week11\Debug\week11.axf
+ *
+```
