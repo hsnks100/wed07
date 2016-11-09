@@ -42,7 +42,75 @@ flash 에 load 되어있는 프로그래밍 디버깅
 
 ![](../images/experiment/debugg5.JPG)
 
-![](../)
+실행버튼 클릭시, 다음과 같이 target 이 main 함수에서 멈춘 것을 확인할 수 있다. 
+
+<br>
+
+# Timer
+
+## Timer 란, 
+
+Timer 는 일련의 사건이나 process를 제어하는 데 사용된다. Timer 는 스톱워치와 달리 특정한 시간 간격으로부터 숫자를 내려 센다. 
+Timer 는 기계적, 전자기계적, 전기적, S/W 적 방식을 취하기도 하며 현대의 모든 컴퓨터들은 하나 이상의 digital Timer 를 포함하기도 한다. 
+
+우리가 쓰는 STM32F10x board 는 SysTick Timer 1개, Watchdog Timer 2개, Advanced-control Timer 1개, General-purpose 
+Timer 4개가 있다.
+
+	- TIM1 : Advanced-control Timer
+	- TIM2 ~ TIM5 : General-purpose Timer
+	- TIM6, TIM7 : Basic Timer
+	
+<br>
+
+![](../images/experiment/timer1.JPG)
+
+- SysTick : 일반 Timer 와 달리 오직 정주기를 만드는 용도로 사용되며 Cortex-M3 core 에 내장되어있다. 
+
+- Watchdog : 컴퓨터의 오작동을 감지하고 복구하기 위해 사용된다. 정상작동 중인 컴퓨터는 시간이 경과하거나 Time out 되는 것을
+막기 위해, 정기적으로 Watchdog Timer 를 재가동시킨다.
+
+- General-purpose : 기본적으로 16 bits auto-reload up/down 카운터로 외부 event 를 카운트하고 시간을 재기 위해 사용된다. 
+
+- Advanced-control : General-purpose Timer 와 거의 유사하나 complementary output 기능을 지원하여 
+PWM(Pulse Width Modulation : 펄스 폭 변조)의 기능을 좀 더 보완한 것이다. 
+
+- Basic : 주로 DAC trigger generation 에 사용된다. 
+
+<br>
+
+## Timer Clock
+
+![](../images/experiment/timer2.JPG)
+
+TIM1 은 APB2 bus 로 부터 clock 을 받는다. 이때 APB2 prescaler 가 1이 아니면 clock 에 2를 곱한 값을 받고 1이면 그대로 받는다. 
+
+TIM2 ~ TIM7 은 APB1 bus 로부터 clock 을 받는다. TIM1 과 마찬가지로 APB1 prescalar 가 1이 아니면 clock 에 2를 곱한 값을 받고 1이면 그대로 받는다. 
+
+<br>
+
+## Timer Cycle
+
+![](../images/experiment/timer3.JPG)
+
+Timer 주기를 구하는 식은 다음과 같다. 
+
+<br>
+
+- prescaler 값이 1일 때
+
+![](../images/experiment/timer4.JPG)
+
+<br>
+- prescaler 값이 3일 때
+
+![](../images/experiment/timer5.JPG)
+
+<br>
+prescaler 와 period 의 값은 0 부터 시작하므로 주고자 하는 값에 -1을 해줘야 한다. 
+
+
+
+
 
 # 실험 방법
 
