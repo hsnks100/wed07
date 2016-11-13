@@ -26,29 +26,29 @@ flash 에 load 되어있는 프로그래밍 디버깅
 - Target 실행을 멈춘다. (F9, Interrupt 아이콘 클릭)
 - Debugg control view -> Load 메뉴 선택
 
-![](../images/experiment12/debugg2.JPG)
+![](../images/experiment11/debugg2.JPG)
 
 - Load file 창에서 load type 을 'load debug info' 로 설정
 - Symbol 정보를 가지고 있는 실행 파일(.axf file)로 지정
 
-![](../images/experiment/debugg3.JPG)
+![](../images/experiment11/debugg3.JPG)
 
 다음과 같이 코드의 시작 위치를 볼 수 있다.
 
-![](../images/experiment/debugg4.JPG)
+![](../images/experiment11/debugg4.JPG)
 
 사용자의 main 함수까지 실행하기 위해 function view 에서 main 함수를 찾아 breakpoint 를 설정하고 run 시킨다.
 단, 코드가 ROM 타입의 메모리에서 실행 중인 경우 H/W breakpoint 를 설정할 필요가 있다.
 
-![](../images/experiment/debugg5.JPG)
+![](../images/experiment11/debugg5.JPG)
 
 실행버튼 클릭시, 다음과 같이 target 이 main 함수에서 멈춘 것을 확인할 수 있다. 
 
 <br>
 
-# Timer
+## Timer
 
-## Timer 란, 
+### Timer 란, 
 
 Timer 는 일련의 사건이나 process를 제어하는 데 사용된다. Timer 는 스톱워치와 달리 특정한 시간 간격으로부터 숫자를 내려 센다. 
 Timer 는 기계적, 전자기계적, 전기적, S/W 적 방식을 취하기도 하며 현대의 모든 컴퓨터들은 하나 이상의 digital Timer 를 포함하기도 한다. 
@@ -62,7 +62,7 @@ Timer 4개가 있다.
 	
 <br>
 
-![](../images/experiment/timer1.JPG)
+![](../images/experiment11/timer1.JPG)
 
 - SysTick : 일반 Timer 와 달리 오직 정주기를 만드는 용도로 사용되며 Cortex-M3 core 에 내장되어있다. 
 
@@ -78,9 +78,9 @@ PWM(Pulse Width Modulation : 펄스 폭 변조)의 기능을 좀 더 보완한 �
 
 <br>
 
-## Timer Clock
+### Timer Clock
 
-![](../images/experiment/timer2.JPG)
+![](../images/experiment11/timer2.JPG)
 
 TIM1 은 APB2 bus 로 부터 clock 을 받는다. 이때 APB2 prescaler 가 1이 아니면 clock 에 2를 곱한 값을 받고 1이면 그대로 받는다. 
 
@@ -88,9 +88,9 @@ TIM2 ~ TIM7 은 APB1 bus 로부터 clock 을 받는다. TIM1 과 마찬가지로
 
 <br>
 
-## Timer Cycle
+### Timer Cycle
 
-![](../images/experiment/timer3.JPG)
+![](../images/experiment11/timer3.JPG)
 
 Timer 주기를 구하는 식은 다음과 같다. 
 
@@ -98,19 +98,36 @@ Timer 주기를 구하는 식은 다음과 같다.
 
 - prescaler 값이 1일 때
 
-![](../images/experiment/timer4.JPG)
+![](../images/experiment11/timer4.JPG)
 
 <br>
 - prescaler 값이 3일 때
 
-![](../images/experiment/timer5.JPG)
+![](../images/experiment11/timer5.JPG)
 
 <br>
 prescaler 와 period 의 값은 0 부터 시작하므로 주고자 하는 값에 -1을 해줘야 한다. 
 
+<br>
+<br>
 
+### Timer Register
 
+![](../images/experiment11/timerblock.JPG)
 
+General-purpose timer block diagram 은 다음과 같다. 
+
+	- TIMx_CNT (TIMx counter) : counter 값이 들어있는 register. 
+
+	- TIMx_PSC (TIMx prescaler) : clock 을 분주하기 위한 값. clock 을 (PSC register 값 + 1) 로 나눈다. 
+
+	- TIMx_ARR (TIMx auto-reload register) : counter 가 카운트할 최대 값. 최대 값까지 카운트 한 뒤 0으로 돌아간다. 
+
+<br>
+Timer clock 이 PSC 의 값에 의해 분주되어 CNT 값이 증가하며 CNT 값이 ARR 값과 같아지면 CNT 값이 reload 된다. 
+
+<br>
+<br>
 
 # 실험 방법
 
@@ -122,7 +139,7 @@ prescaler 와 period 의 값은 0 부터 시작하므로 주고자 하는 값에
 
 10주차와 마찬가지로 TFT-LCD 를 보드에 결합시킨다.
 
-그리고 1초에 한번씩 호출되는 타이머를 써야하는데 이를 세팅하는 코드는 다음과 같다.
+그리고 1초에 한번씩 호출되는 타이머를 써야하는데 이를 세팅하는 코드는 다음과 같다. (초 조절하는 방법은 6주차 참고)
 
 
 ``` cpp
@@ -203,6 +220,8 @@ while (1) {
 <br>
 
 # 실험 결과
+
+![](../images/experiment11/output.jpg)
 
 그림과 같이 왼쪽 상단에는 초시계가 카운팅 되고, 오른쪽 상단엔 조도센서의 값을 가져와서 값을 출력하게 되었다.
 
