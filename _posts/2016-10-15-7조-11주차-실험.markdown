@@ -10,6 +10,7 @@ comments: true
 Timer 의 원리와 동작 방식을 이하고 Timer 의 주기에 따라 Interrupt 를 발생시켜 LED를 제어한다.
 
 <br>
+
 # 기본 개념 (배경 지식)
 
 ## Flash Debugging
