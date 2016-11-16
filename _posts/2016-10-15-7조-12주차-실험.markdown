@@ -7,20 +7,153 @@ comments: true
 ---
 # 개요
 
+DMA 기능에 대한 이해 및 사용.
+
 <br>
 
 # 기본 개념 (배경 지식)
 
+## DMA 
+
+### DMA (Direct Memory Access) 
+
+![](../images/experiments12/dma.JPG)
+
+DMA 란, CPU 개입 없이 I/O device 와 memory device 사이에 data 전송을 가능하게 해주는 것으로 속도가 빠르다. 
+
+program 수행 I/O 를 위한 interrupt 를 최소화하여 컴퓨터 효율을 높인다. CPU 와 별개로 분리되어 처리하며 disk, printer, tape-drive 등에 이용된다. 
+
+DAM controller 는 system bus 의 권한을 얻어 원하는 data 를 저장하고 bus 의 권한을 반환 후, 개별적으로 처리한다. 또, CPU 는 DMA 의 상태 정보 및 제어 정보만 주고 받는다. 
+
+Interrupt 호출이 많은 기능을 이용할 때, DMA 방식을 사용하는 것이 더 효율적이다. (e.g. 조도센서)
+
+DMA 와 interrupt 를 혼합해서 사용 가능하다. 
+
+<br>
+
+	< DMA 동작 방식 >
+
+	1. CPU 가 DMA controller 를 초기화. (memory 시작주소, 크기, I/O device 번호, I/O 선택 등)
+
+	2. I/O device 가 DMA 를 요청.
+
+	3. DMA controller 가 bus 를 CPU 에게 요청.
+
+	4. CPU 가 bus 승락. (Grant)
+
+	5. DMA controller 가 DMA 승락. 
+
+	6. I/O device 와 memory 사이의 자료전송. 
+	
+	7. DMA controller 가 DMA 완료 interrupt 를 CPU 에게 보냄. 
+ 
 <br>
 <br>
+### 일반 memory 제어방식 vs DMA
+
+	일반 memory 제어방식
+
+	- CPU 가 I/O controller 에 명령을 보내고 CPU 는 다른 작업을 수행.
+
+	- controller 는 I/O device 를 제어하여 I/O 명령을 수행.
+
+	- I/O 명령 수행이 완료되면 controller 는 CPU 로 interrupt signal 을 보냄. 
+
+	- CPU 는 interrupt signal 을 받는 즉시 원래의 program 으로 돌아와서 수행을 계속함. 
+
+<br>
+	DMA
+	
+	- CPU 가 DMA 에 명령을 보냄.
+	
+	- DMA 는 CPU 로 BUS REG signal 을 보냄.
+	
+	- DMA 가 memory 에서 data 를 읽어 disk 에 저장함. 
+	
+	- 전송할 data 가 남아있으면 위의 과정을 반복. 
+	
+	- 모든 data 전송이 끝나면 CPU 에게 INTR signal 을 보냄. 
+
+<br>
+<br>
+### DMA block diagram 
+
+![](../images/experiments12/dmablock.JPG)
+
+다음은 DAM block diagram 으로 원하는 기능의 bus 와 channel 을 선택하여 DMA 를 구현할 수 있다. 
+
+- DMA controller : system bus 를 cortex-M3 와 공유하여 직접 memory 전송을 수행한다. 
+
+- DMA request 는 CPU 및 DMA 가 동일한 memory 나 peripheral 를 대상으로 할 때, 일부 bus cycle 동안 system bus 에 대한 CPU access 를 중지할 수 있다. 
+
+- Bus Matrix 는 Round-robin scheduling 을 구현하므로 CPU 의 system bus 대역폭의 절반 이상을 보장한다. 
+
+<br>
+<br>
+### DMA channel
+
+7개의 DMA1 과 5개의 DMA2 channel 로 구성되어 있다. 각 channel 은 고정 주소에 위치한 peripheral register 와 memory address 사이의 DMA 전송을 처리한다. 
+
+동시에 하나의 channel/request 만 동작한다. data 크기는 programming 하고 pointer 를 증가시킨다. 다음 전송 address 는 선택한 data 크기에 따라 이전 address에서 1, 2 또는 4 씩 증가한다. 
+
+<br>
+<br>
+### DMA mode
+
+- circular mode : 순환 buffer 및 연속 data 의 흐름에 대한 handling 이 가능하다. (e.g. ADC scan mode)
+
+- Normal mode : 전송할 data 의 수가 0이 되면 stream 이 disable 된다. 
+
+추가적으로 data 전송시에 필요한 정보들은 뒤에 나오는 register 값으로 set 해주면 된다. 
+
+<br>
+<br>
+### DMA 관련 Standard Peripheral Library 함수
+
+![](../images/experiments12/dmafunction.JPG)
+
+- DMA_PeripheralBaseAddr : DMA 를 사용할 peripheral 와 memory 간의 변수 address 설정.
+
+- DMA_MemoryBaseAddr : 변수를 통해 실제로 저장될 memory address. 
+
+- DMA_BufferSize : 변수에 저장할 memory 크기.
+
+- DMA_MemoryDataSize : 변수에 저장될 data 크기. 
+
+### DMA register
+
+- DMA_CPARx : register address 를 저장. 
+
+- DMA_CMARx : memory address 를 저장. 
+
+- DMA_CCNDTRx : 전송할 data 개수를 저장. 
+
+- DMA_CCRx : 우선순위 지정. 
+
+<br>
+<br>
+### DMA request mapping & 우선순위
+
+![](../images/experiments12/mapping.JPG)
+
+그림과 같이 request mapping 이 되어 있다. peripheral 의 DMA request 는 peripheral 의 register 에서 DMA control bit 를 programming 함으로써 
+독립적으로 활성화 또는 비활성화 될 수 있다. 
+
+DMA channel 은 very high, high, medium, low 이렇게 4가지의 우선순위를 가진다. 
+
+DMA1 의 1~7번 channel 순서대로 우선순위를 가진다. 우선순위에 따른 한번에 하나의 request 만 가능하다. 
+
+원래 설정되어있는 우선순위를 disable 시키고 우선순위를 직접적으로 설정할 수 있다. 
+
+<br>
+<br>
+
 
 # 실험 방법
 
 <br>
 
 # 실험 결과
-
-
 
 <br>
 
