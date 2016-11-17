@@ -159,19 +159,322 @@ DMA1 의 1~7번 channel 순서대로 우선순위를 가진다. 우선순위에 
 <br>
 <br>
 
-
 # 실험 방법
 
+![](../images/experiment12/board_connect.jpg)
+
+다음과 같이 jump 선을 이용하여 board 에 조도센서와 온습도센서를 연결한다. 
+
+
+<br>
+
+ADC 와 DMA 를 사용하여 조도센서 1개와 온습도센서 1개의 값을 받아오는 코드를 작성.
+이때, ADC 는 interrupt 를 사용하지 않는다. 
+
+Timer 를 사용하여 조도센서 값들을 LCD 에 1초마다 출력하도록 한다. 
+
+0.5초마다 센서값을 확인하여 적당한 기준보다 어둡다고 판단되면 LED 를 점등시킨다. 
+
+<br>
 <br>
 
 # 실험 결과
 
+![](../images/experiment12/output.jpg)
+
+가운데 부분의 위의 값은 조도센서로부터 받아온 값이고 아래 값은 온습도센서로부터 받아온 값이다. 
+
+우리조는 조도값이 3800이상이 되면 LED 점등의 조건을 걸어서 사진에는 LED가 켜지지 않은 상태이다. 
+ 
+<br>
 <br>
 
 # 결론
+
 
 <br>
 <br>
 
 # 전체 코드
 
+```cpp
+
+
+#include <misc.h>
+#include <stm32f10x.h>
+#include <stm32f10x_exti.h>
+#include <stm32f10x_gpio.h>
+#include <stm32f10x_rcc.h>
+#include <stm32f10x_usart.h>
+#include <stm32f10x_adc.h>
+#include <lcd.h>
+#include <Touch.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+vu32 ADC_Value[2];
+char onsub[10];
+char jodo[10];
+int j;
+int t = 1;
+
+void delay(int i) {
+	int j;
+	for (j = 0; j <= i * 100000; j++)
+		;
+}
+void TIM2_IRQHandler(void) {
+	t++;
+	sprintf(jodo, "%d", ADC_Value[0]);
+	sprintf(onsub, "%d", ADC_Value[1]);
+	j = (int)ADC_Value[0];
+	if (t % 2 == 0) {
+		LCD_ShowString(100, 100, jodo, BLACK, WHITE);
+		LCD_ShowString(100, 150, onsub, BLACK, WHITE);
+	}
+
+	if (j > 3800) {
+		GPIO_SetBits(GPIOD, GPIO_Pin_2);
+	} else {
+		GPIO_ResetBits(GPIOD, GPIO_Pin_2);
+	}
+
+	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+	//Clears the TIMx's interrupt pending bits.
+}
+void SysInit(void) {
+	/* Reset the RCC clock configuration to the default reset state(for debug purpose) */
+	/* Set HSION bit */
+	RCC->CR |= (uint32_t) 0x00000001;
+
+	/* Reset SW, HPRE, PPRE1, PPRE2, ADCPRE and MCO bits */
+	RCC->CFGR &= (uint32_t) 0xF0FF0000;
+
+	/* Reset HSEON, CSSON and PLLON bits */
+	RCC->CR &= (uint32_t) 0xFEF6FFFF;
+
+	/* Reset HSEBYP bit */
+	RCC->CR &= (uint32_t) 0xFFFBFFFF;
+
+	/* Reset PLLSRC, PLLXTPRE, PLLMUL and USBPRE/OTGFSPRE bits */
+	RCC->CFGR &= (uint32_t) 0xFF80FFFF;
+
+	/* Reset PLL2ON and PLL3ON bits */
+	RCC->CR &= (uint32_t) 0xEBFFFFFF;
+
+	/* Disable all interrupts and clear pending bits  */
+	RCC->CIR = 0x00FF0000;
+
+	/* Reset CFGR2 register */
+	RCC->CFGR2 = 0x00000000;
+}
+
+void SetSysClock(void) {
+	volatile uint32_t StartUpCounter = 0, HSEStatus = 0;
+
+	/* SYSCLK, HCLK, PCLK2 and PCLK1 configuration ---------------------------*/
+	/* Enable HSE */
+	RCC->CR |= ((uint32_t) RCC_CR_HSEON);
+
+	/* Wait till HSE is ready and if Time out is reached exit */
+	do {
+		HSEStatus = RCC->CR & RCC_CR_HSERDY;
+		StartUpCounter++;
+	} while ((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+
+	if ((RCC->CR & RCC_CR_HSERDY) != RESET) {
+		HSEStatus = (uint32_t) 0x01;
+	} else {
+		HSEStatus = (uint32_t) 0x00;
+	}
+
+	if (HSEStatus == (uint32_t) 0x01) {
+		/* Enable Prefetch Buffer */
+		FLASH->ACR |= FLASH_ACR_PRFTBE;
+
+		/* Flash 0 wait state */
+		FLASH->ACR &= (uint32_t) ((uint32_t) ~FLASH_ACR_LATENCY);
+		FLASH->ACR |= (uint32_t) FLASH_ACR_LATENCY_0;
+
+		/* HCLK = SYSCLK = 48MHz */
+		RCC->CFGR |= (uint32_t) RCC_CFGR_HPRE_DIV1;
+
+		/* PCLK2 = HCLK = 48MHz */
+		RCC->CFGR |= (uint32_t) RCC_CFGR_PPRE2_DIV1;
+
+		/* PCLK1 = HCLK  = 24MHz  */
+		RCC->CFGR |= (uint32_t) RCC_CFGR_PPRE1_DIV1;
+
+		/* Configure PLLs ------------------------------------------------------*/
+		/* PLL configuration: PLLCLK = PREDIV1 * 6 = 48MHz */
+		RCC->CFGR &= (uint32_t) ~(RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLSRC
+				| RCC_CFGR_PLLMULL);
+		RCC->CFGR |= (uint32_t) (RCC_CFGR_PLLXTPRE_PREDIV1
+				| RCC_CFGR_PLLSRC_PREDIV1 |
+				RCC_CFGR_PLLMULL6);
+
+		/* PLL2 configuration: PLL2CLK = HSE/5 * 8 = 40MHz  */
+		/* PREDIV1 configuration: PREDIV1CLK = PLL2 / 5 = 8MHz */
+		RCC->CFGR2 &= (uint32_t) ~(RCC_CFGR2_PREDIV2 | RCC_CFGR2_PLL2MUL |
+		RCC_CFGR2_PREDIV1 | RCC_CFGR2_PREDIV1SRC);
+		RCC->CFGR2 |= (uint32_t) (RCC_CFGR2_PREDIV2_DIV5 | RCC_CFGR2_PLL2MUL8 |
+		RCC_CFGR2_PREDIV1SRC_PLL2 | RCC_CFGR2_PREDIV1_DIV5);
+
+		/* Enable PLL2 */
+		RCC->CR |= RCC_CR_PLL2ON;
+		/* Wait till PLL2 is ready */
+		while ((RCC->CR & RCC_CR_PLL2RDY) == 0) {
+		}
+
+		/* Enable PLL */
+		RCC->CR |= RCC_CR_PLLON;
+
+		/* Wait till PLL is ready */
+		while ((RCC->CR & RCC_CR_PLLRDY) == 0) {
+		}
+
+		/* Select PLL as system clock source */
+		RCC->CFGR &= (uint32_t) ((uint32_t) ~(RCC_CFGR_SW));
+		RCC->CFGR |= (uint32_t) RCC_CFGR_SW_PLL;
+
+		/* Wait till PLL is used as system clock source */
+		while ((RCC->CFGR & (uint32_t) RCC_CFGR_SWS) != (uint32_t) 0x08) {
+		}
+	} else { /* If HSE fails to start-up, the application will have wrong clock
+	 configuration. User can add here some code to deal with this error */
+	}
+}
+void init_Timer2() {
+	NVIC_InitTypeDef NVIC_InitStructure; // for interreupt
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure; // timerbase...
+
+	/* TIM2 Clock Enable */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+
+	/* Enable TIM2 Global Interrupt */
+	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+
+	/* TIM2 Initialize */
+	TIM_TimeBaseStructure.TIM_Period = 600;
+	TIM_TimeBaseStructure.TIM_Prescaler = 60000;
+	//계산방법 : 1/72mhz * 1200 * 60000
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+
+	/* TIM2 Enale */
+	TIM_ARRPreloadConfig(TIM2, ENABLE);
+	TIM_Cmd(TIM2, ENABLE);
+	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE); // interrupt enable
+}
+
+void set_ENABLE(void) {
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);	 // interrupt
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);     // RCC GPIO E
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);     // RCC GPIO C
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);	 // ADC1
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);		 // DMA1
+}
+void set_LED(){
+	GPIO_InitTypeDef LED;
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);     // RCC GPIO D
+	LED.GPIO_Mode = GPIO_Mode_Out_PP;
+	LED.GPIO_Pin = GPIO_Pin_2;
+	LED.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOD, &LED);
+}
+
+void set_PC1(void) {
+	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
+}
+void set_PC2(void) {
+	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
+}
+
+void set_ADC(void) {
+	ADC_InitTypeDef ADC_InitStructure;
+	ADC_DeInit(ADC1);
+	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
+	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
+	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+	ADC_InitStructure.ADC_NbrOfChannel = 2;
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_11, 1,
+	ADC_SampleTime_55Cycles5);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_12, 2,
+	ADC_SampleTime_55Cycles5);
+	ADC_Init(ADC1, &ADC_InitStructure);
+
+	ADC_DMACmd(ADC1, ENABLE);
+	ADC_Cmd(ADC1, ENABLE);
+
+}
+
+void ADC_start(void) {
+	ADC_ResetCalibration(ADC1);
+	while (ADC_GetResetCalibrationStatus(ADC1))
+		;
+	ADC_StartCalibration(ADC1);
+	while (ADC_GetCalibrationStatus(ADC1))
+		;
+	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
+}
+
+void DMA_init() {
+	DMA_InitTypeDef DMA_InitStructure;
+	DMA_DeInit(DMA1_Channel1);
+	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) &ADC1->DR;
+	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t) ADC_Value;
+	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+	DMA_InitStructure.DMA_BufferSize = 2;
+	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
+	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Word;
+	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+	DMA_Cmd(DMA1_Channel1, ENABLE);
+}
+
+int main() {
+	SystemInit();
+	set_ENABLE();
+	set_PC1();
+	set_PC2();
+	set_ADC();
+	set_LED();
+	LCD_Init();
+	LCD_Clear(WHITE);
+	DMA_init();
+	init_Timer2();
+	ADC_start();
+//	GPIOD->CRL = (GPIO_CRL_MODE2_0 | GPIO_CRL_MODE3_0 | GPIO_CRL_MODE4_0
+//			| GPIO_CRL_MODE7_0);
+
+	while (1) {
+		LCD_ShowString(1, 1, "Wed_team07", BLACK, WHITE);
+	}
+
+}
+
+/*
+ flash load C:\Users\USER\Desktop\team07\week12\Debug\week12.axf
+ flash load C:\Users\USER\Desktop\team07\week12\Debug\flashclear.axf
+ */
+
+```
