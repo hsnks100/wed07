@@ -1,10 +1,3 @@
----
-layout: post
-author: 한성희, 이호욱, 한경수
-date: 2016-11-03 17:48 +0900
-tags:
-comments: true
----
 # 개요
 
 DMA 기능에 대한 이해 및 사용.
@@ -14,9 +7,11 @@ DMA 기능에 대한 이해 및 사용.
 # 기본 개념 (배경 지식)
 
 <br>
+
 ## DMA
 
 <br>
+
 ### DMA (Direct Memory Access)
 
 ![](../images/experiment12/dma.jpg)
@@ -208,6 +203,7 @@ void DMA_init() {
 	DMA_Cmd(DMA1_Channel1, ENABLE);
 }
 ```
+
 DMA_InitTypeDef 구조체를 선언하고 초기화 후 Enable 시킨다. ADC1에 Channel 11과 12를 열어주면 DMA_MemoryBaseAddr의 값으로 준 ADC_Value에 조도센서와 온습도센서의 data가 각각 update 된다.
 
 
@@ -262,8 +258,7 @@ data 전송을 처리할 수 있을 것 같다.
 
 # 전체 코드
 
-```cpp
-
+``` cpp
 
 #include <misc.h>
 #include <stm32f10x.h>
@@ -537,9 +532,5 @@ int main() {
 
 }
 
-/*
- flash load C:\Users\USER\Desktop\team07\week12\Debug\week12.axf
- flash load C:\Users\USER\Desktop\team07\week12\Debug\flashclear.axf
- */
 
 ```
